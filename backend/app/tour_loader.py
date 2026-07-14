@@ -1,3 +1,6 @@
+
+# json 데이터들 db에 넣기 
+# JSON 파일을 읽어서 TourItem 테이블에 저장
 import json
 from pathlib import Path
 from typing import List

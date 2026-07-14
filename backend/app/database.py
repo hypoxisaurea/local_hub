@@ -1,3 +1,5 @@
+# 데이터 베이스 연결
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 

@@ -1,41 +1,42 @@
+# 백엔드에서 API 요청과 응답에 사용하는 데이터 구조를 정의하는 파일
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-
+# 초기에 임시로 넣었던 플레이스(장소) 정보
 class PlaceBase(BaseModel):
     title: str
     category: str
     description: Optional[str] = None
     address: Optional[str] = None
 
-
+# 초기에 임시로 넣었던 플레이스(장소) 생성
 class PlaceCreate(PlaceBase):
     pass
 
-
+# 초기에 임시로 넣었던 플레이스(장소) 정보
 class Place(PlaceBase):
     id: int
 
     class Config:
         orm_mode = True
 
-
+# 사용자가 카테고리를 사용할 때 사용하는 정보
 class CategoryBase(BaseModel):
     name: str
 
-
+# 카테고리 생성
 class CategoryCreate(CategoryBase):
     pass
 
-
+# 서버가 카테고리를 사용할 때 사용하는 정보
 class Category(CategoryBase):
     pk_category_id: int
 
     class Config:
         orm_mode = True
 
-
+# 게시글
 class PostBase(BaseModel):
     fk_category_id: int
     title: str
@@ -55,7 +56,7 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
-
+# 댓글
 class CommentBase(BaseModel):
     fk_post_id: int
     content: Optional[str] = None
@@ -73,6 +74,7 @@ class Comment(CommentBase):
     class Config:
         orm_mode = True
 
+# 관광지 정보 (Json 데이터 기반)
 class TourItem(BaseModel):
     id: int
     contentid: str

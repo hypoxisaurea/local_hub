@@ -1,9 +1,10 @@
+#  DB 스키마를 선언 (DB)
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 
 from .database import Base
 
-
+# 과거 초반 데이터 설정할 때 만든 것 (임시)
 class Place(Base):
     __tablename__ = "places"
 
@@ -13,7 +14,7 @@ class Place(Base):
     description = Column(Text, nullable=True)
     address = Column(String(255), nullable=True)
 
-
+# 테이블 설계하고 생성한 카테고리
 class Category(Base):
     __tablename__ = "categories"
 
@@ -22,7 +23,7 @@ class Category(Base):
 
     posts = relationship("Post", back_populates="category", cascade="all, delete-orphan")
 
-
+# 테이블 설계하고 생성한 포스트(게시글)
 class Post(Base):
     __tablename__ = "posts"
 
@@ -36,7 +37,7 @@ class Post(Base):
     category = relationship("Category", back_populates="posts")
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
 
-
+# 테이블 설계하고 생성한 포스트(댓글)
 class Comment(Base):
     __tablename__ = "comments"
 
@@ -48,7 +49,7 @@ class Comment(Base):
 
     post = relationship("Post", back_populates="comments")
 
-
+# 관광지 정보 (Json 데이터 기반)
 class TourItem(Base):
     __tablename__ = "tour_items"
 

@@ -1,7 +1,8 @@
+# 데이터들 db에 넣기
+# 코드에서 직접 만든 초기 샘플 데이터를 DB에 넣음
 from sqlalchemy.orm import Session
 
 from . import models
-
 
 def seed_initial_data(db: Session):
     existing = db.query(models.Category).first()

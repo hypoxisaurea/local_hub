@@ -1,3 +1,5 @@
+#api 호출 파트 (FastAPI 사용)
+
 from fastapi import FastAPI, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -10,7 +12,6 @@ from .tour_loader import load_tour_items
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="LocalHub API", version="0.1.0")
-
 
 @app.on_event("startup")
 def on_startup():
