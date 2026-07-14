@@ -1,0 +1,15 @@
+# Python virtual environment
+.venv/
+
+# SQLite
+localhub.db
+
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+
+# Pip cache
+pip-log.txt
+
+# IDE
+.vscode/
