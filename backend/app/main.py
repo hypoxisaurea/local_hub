@@ -1,13 +1,14 @@
-#api 호출 파트 (FastAPI 사용)
+#api 호출 파트 (FastAPI 사용) //라우터 기능들 전부 여기다 넣음 -> 추후 라우터 파일로 분리?
 
-from fastapi import FastAPI, Depends, Query
+from fastapi import FastAPI, Depends, Query, HTTPException, status
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from . import models, schemas
 from .database import SessionLocal, engine, get_db
 from .seed import seed_initial_data
-from .tour_loader import load_tour_items
+from .tour_loader import load_tour_items_separate_tables as load_tour_items
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -70,3 +71,41 @@ def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):
 @app.get("/api/health")
 def health_check():
     return {"status": "ok"}
+
+
+# OG 태그를 포함한 HTML을 반환하는 엔드포인트 (OpenAI 코드 / 수정 필요)
+@app.get("/share/post/{post_id}", response_class=HTMLResponse)
+def get_post_og_tags(post_id: int, db: Session = Depends(get_db)):
+    # 1. DB에서 게시글 조회 (SQLite) [cite: 11, 38]
+    post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # 2. 메인 서비스 URL (Netlify 주소 등 환경변수 처리 필요) [cite: 40, 44]
+    frontend_url = f"https://your-netlify-site.netlify.app/posts/{post_id}"
+    
+    # 3. OG 태그가 포함된 HTML 리턴 (카카오톡 등의 크롤러 수집용) 
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>{post.title} - LocalHub</title>
+        
+        <meta property="og:title" content="{post.title}" />
+        <meta property="og:description" content="{post.content[:100]}" />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content="{frontend_url}" />
+        <meta property="og:image" content="https://your-netlify-site.netlify.app/logo.png" />
+        
+        <script>
+            window.location.href = "{frontend_url}";
+        </script>
+    </head>
+    <body>
+        <h1>{post.title}</h1>
+        <p>{post.content}</p>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
