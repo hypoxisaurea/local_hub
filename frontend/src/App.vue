@@ -2,6 +2,7 @@
 import { RouterView } from 'vue-router'
 import HeaderNav from '@/components/HeaderNav.vue'
 import FooterSection from '@/components/FooterSection.vue'
+import FloatingMascotButton from '@/components/FloatingMascotButton.vue'
 </script>
 
 <template>
@@ -16,6 +17,9 @@ import FooterSection from '@/components/FooterSection.vue'
 
     <!-- Footer -->
     <FooterSection />
+
+    <!-- Floating AI button -->
+    <FloatingMascotButton />
   </div>
 </template>
 
