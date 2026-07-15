@@ -469,7 +469,7 @@ const closePostForm = () => {
   resetPostForm()
 }
 
-const submitPostForm = () => {
+const submitPostForm = async () => {
   const { category, nickname, title, content, password } = postForm.value
 
   if (!nickname.trim() || !title.trim() || !content.trim()) {
@@ -479,7 +479,7 @@ const submitPostForm = () => {
 
   // 게시글 수정
   if (editingPost.value) {
-    const updated = portal.updatePostWithPassword(
+    const updated = await portal.updatePostWithPassword(
       editingPost.value.id,
       editPassword.value,
       {
@@ -517,7 +517,7 @@ const submitPostForm = () => {
     return
   }
 
-  portal.addPost({
+  await portal.addPost({
     category,
     nickname: nickname.trim(),
     title: title.trim(),
@@ -615,7 +615,7 @@ const movePage = (page: number) => {
   currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
 }
 
-const verifyPostPassword = () => {
+const verifyPostPassword = async () => {
   if (!editingPost.value) return
 
   if (editingPost.value.password !== editPassword.value) {
@@ -625,7 +625,7 @@ const verifyPostPassword = () => {
 
   // 삭제 모드
   if (passwordAction.value === 'delete') {
-    const deleted = portal.deletePostWithPassword(
+    const deleted = await portal.deletePostWithPassword(
       editingPost.value.id,
       editPassword.value
     )

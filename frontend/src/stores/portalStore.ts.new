@@ -181,15 +181,12 @@ export const usePortalStore = defineStore('portal', () => {
 
     const idx = posts.value.findIndex((post) => post.id === id)
     if (idx !== -1) {
-      const target = posts.value[idx]
-      if (target) {
-        posts.value[idx] = {
-          ...target,
-          category: updated.category,
-          title: updated.title,
-          content: updated.content,
-          nickname: updates.nickname ?? target.nickname,
-        }
+      posts.value[idx] = {
+        ...posts.value[idx],
+        category: updated.category,
+        title: updated.title,
+        content: updated.content,
+        nickname: updates.nickname ?? posts.value[idx].nickname,
       }
     }
     saveToStorage()
