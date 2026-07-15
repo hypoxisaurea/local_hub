@@ -108,8 +108,9 @@ export const usePortalStore = defineStore('portal', () => {
   // 게시글 수정
   const updatePost = (id: number, updates: Partial<Post>) => {
     const idx = posts.value.findIndex(p => p.id === id)
-    if (idx !== -1) {
-      posts.value[idx] = { ...posts.value[idx], ...updates }
+    const currentPost = posts.value[idx]
+    if (currentPost) {
+      posts.value[idx] = { ...currentPost, ...updates }
       saveToStorage()
     }
   }
