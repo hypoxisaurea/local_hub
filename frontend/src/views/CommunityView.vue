@@ -1,5 +1,5 @@
 <template>
-  <section class="w-full flex-1 flex flex-col animate-fadeIn py-12">
+  <section class="w-full flex-1 flex flex-col animate-fadeIn pt-28 pb-12">
     <div class="max-w-7xl mx-auto w-full px-4 lg:px-8">
       
       <!-- Page Header -->
@@ -618,7 +618,7 @@ const movePage = (page: number) => {
 const verifyPostPassword = async () => {
   if (!editingPost.value) return
 
-  if (editingPost.value.password !== editPassword.value) {
+  if (String(editingPost.value.password) !== editPassword.value.trim()) {
     ui.showToast(t('toast.passwordMismatch'))
     return
   }
