@@ -2,11 +2,11 @@
   <section class="w-full flex-1 flex flex-col animate-fadeIn">
     
     <!-- Hero Banner with Background Image -->
-    <div 
+    <div
       class="relative py-12 lg:py-24 px-6 lg:px-16 overflow-hidden"
-      :style="{ 
+      :style="{
         backgroundImage: 'url(/banners/banner.png)',
-        backgroundSize: 'contain',
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }"
@@ -17,15 +17,6 @@
         
         <!-- Left Hero Column -->
         <div class="lg:col-span-7 space-y-6">
-          <!-- Live Badge -->
-          <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-slate-200/50 shadow-sm">
-            <span class="flex h-2 w-2 relative">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-            </span>
-            <span class="text-xs font-bold text-slate-700">공공데이터 실시간 연동 완료</span>
-          </div>
-          
           <!-- Main Title (텍스트색 변경) -->
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
             서울, 우리끼리 <br class="hidden sm:inline">
