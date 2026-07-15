@@ -14,22 +14,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '@/components/LocalListPage.vue'
 import type { LocalPlace } from '@/types/local'
 
-interface FestivalRow {
-  contentid: string
-  firstimage?: string | null
-  title: string
-  addr1?: string | null
-}
-
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
-const festivals = ref<LocalPlace[]>([])
+const festivalItems = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
@@ -37,11 +30,42 @@ const recommendedTags = computed(() =>
     : ['#Outdoor', '#Exhibition', '#Performance', '#Free']
 )
 
+interface TravelSpotResponse {
+  contentid: string
+  firstimage?: string | null
+  title: string
+  addr1?: string | null
+}
+
+const toFestivalPlace = (item: TravelSpotResponse, index: number): LocalPlace => ({
+  id: Number(item.contentid) || index,
+  title: item.title,
+  location: item.addr1 || '',
+  tags: [locale.value === 'ko' ? '#축제' : '#Festivals'],
+  image: item.firstimage || '/banners/banner.png',
+})
+
+const fetchFestivals = async () => {
+  const params = new URLSearchParams({ lang: locale.value })
+  if (searchQuery.value.trim()) {
+    params.set('q', searchQuery.value.trim())
+  }
+
+  const response = await fetch(`/api/travel-spots-simple/festivals?${params.toString()}`)
+  if (!response.ok) {
+    festivalItems.value = []
+    return
+  }
+
+  const data = await response.json() as TravelSpotResponse[]
+  festivalItems.value = data.map(toFestivalPlace)
+}
+
 const filteredFestivals = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return festivals.value.filter((festival) => {
+  return festivalItems.value.filter((festival) => {
     const text = [festival.title, festival.location, ...festival.tags]
       .join(' ')
       .toLowerCase()
@@ -51,31 +75,8 @@ const filteredFestivals = computed(() => {
   })
 })
 
-async function fetchFestivals() {
-  try {
-    const res = await fetch('/api/travel-spots-simple/festivals')
-    if (!res.ok) throw new Error('failed to load festivals')
-
-    const rows: FestivalRow[] = await res.json()
-    festivals.value = rows.map((row, index) => ({
-      id: Number(row.contentid) || index + 1,
-      title: row.title || '제목 없음',
-      location: row.addr1 || '서울',
-      tags: ['#축제', '#공연', '#행사'],
-      image: row.firstimage || '/images/default-festival.jpg',
-    }))
-  } catch (error) {
-    console.error('Failed to load festivals from DB', error)
-    festivals.value = []
-  }
-}
-
-onMounted(() => {
-  fetchFestivals()
-})
-
 function searchFestivals() {
-  console.log(searchQuery.value)
+  fetchFestivals()
 }
 
 function toggleTag(tag: string) {
@@ -85,5 +86,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchFestivals()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchFestivals()
+})
+
+onMounted(fetchFestivals)
 </script>

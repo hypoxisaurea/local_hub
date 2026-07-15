@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '../components/LocalListPage.vue'
 import type { LocalPlace } from '../types/local'
@@ -24,6 +24,7 @@ import type { LocalPlace } from '../types/local'
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
+const placeItems = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
@@ -31,73 +32,42 @@ const recommendedTags = computed(() =>
     : ['#Healing', '#Hotspots', '#History', '#Activities']
 )
 
-const places = computed<LocalPlace[]>(() => locale.value === 'ko'
-  ? [
-      {
-        id: 1,
-        title: '경복궁 야간개장',
-        location: '서울특별시 종로구',
-        tags: ['#서울야경', '#데이트코스', '#역사문화'],
-        image: '/images/gyeongbokgung.jpg',
-      },
-      {
-        id: 2,
-        title: '성수동 팝업스토어',
-        location: '서울특별시 성동구',
-        tags: ['#서울', '#요즘뜨는곳', '#핫플'],
-        image: '/images/seongsu.jpg',
-      },
-      {
-        id: 3,
-        title: '한강 피크닉',
-        location: '서울특별시 영등포구',
-        tags: ['#공원', '#힐링', '#액티비티'],
-        image: '/images/hangang.jpg',
-      },
-      {
-        id: 4,
-        title: '을지로 노가리 골목',
-        location: '서울특별시 중구',
-        tags: ['#맛집', '#로컬감성', '#핫플'],
-        image: '/images/euljiro.jpg',
-      },
-    ]
-  : [
-      {
-        id: 1,
-        title: 'Gyeongbokgung Night Opening',
-        location: 'Jongno-gu, Seoul',
-        tags: ['#SeoulNightView', '#DateCourse', '#History'],
-        image: '/images/gyeongbokgung.jpg',
-      },
-      {
-        id: 2,
-        title: 'Seongsu Popup Stores',
-        location: 'Seongdong-gu, Seoul',
-        tags: ['#Seoul', '#Trending', '#Hotspots'],
-        image: '/images/seongsu.jpg',
-      },
-      {
-        id: 3,
-        title: 'Hangang Picnic',
-        location: 'Yeongdeungpo-gu, Seoul',
-        tags: ['#Park', '#Healing', '#Activities'],
-        image: '/images/hangang.jpg',
-      },
-      {
-        id: 4,
-        title: 'Euljiro Nogari Alley',
-        location: 'Jung-gu, Seoul',
-        tags: ['#Restaurants', '#LocalMood', '#Hotspots'],
-        image: '/images/euljiro.jpg',
-      },
-    ])
+interface TravelSpotResponse {
+  contentid: string
+  firstimage?: string | null
+  title: string
+  addr1?: string | null
+}
+
+const toLocalPlace = (item: TravelSpotResponse, index: number): LocalPlace => ({
+  id: Number(item.contentid) || index,
+  title: item.title,
+  location: item.addr1 || '',
+  tags: [locale.value === 'ko' ? '#관광지' : '#Attractions'],
+  image: item.firstimage || '/banners/banner.png',
+})
+
+const fetchPlaces = async () => {
+  const params = new URLSearchParams({ lang: locale.value })
+  if (searchQuery.value.trim()) {
+    params.set('q', searchQuery.value.trim())
+  }
+
+  const response = await fetch(`/api/travel-spots-simple/attractions?${params.toString()}`)
+  if (!response.ok) {
+    placeItems.value = []
+    return
+  }
+
+  const data = await response.json() as TravelSpotResponse[]
+  placeItems.value = data.map(toLocalPlace)
+}
 
 const filteredPlaces = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return places.value.filter((place) => {
+  return placeItems.value.filter((place) => {
     const searchableText = [
       place.title,
       place.location,
@@ -115,7 +85,7 @@ const filteredPlaces = computed(() => {
 })
 
 function searchPlaces() {
-  console.log(searchQuery.value)
+  fetchPlaces()
 }
 
 function toggleTag(tag: string) {
@@ -125,5 +95,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchPlaces()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchPlaces()
+})
+
+onMounted(fetchPlaces)
 </script>

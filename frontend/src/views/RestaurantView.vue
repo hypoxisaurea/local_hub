@@ -14,25 +14,15 @@
 </template>
 
 <script setup lang="ts">
-// 1. onMounted 임포트 추가
-import { computed, ref, onMounted } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FoodListPage from '@/components/FoodListPage.vue'
 import type { LocalPlace } from '@/types/local'
 
-// 2. 인터페이스 이름 수정 (RestaurantRowRow -> RestaurantRow)
-interface RestaurantRow {
-  id: string
-  title: string
-  address?: string | null
-}
-
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
-
-// 3. 누락되었던 restaurants 반응형 변수 선언 추가
-const restaurants = ref<LocalPlace[]>([])
+const restaurantItems = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
@@ -40,11 +30,47 @@ const recommendedTags = computed(() =>
     : ['#KoreanFood', '#Cafe', '#SoloDining', '#Date']
 )
 
+interface RestaurantResponse {
+  id: number
+  title: string
+  address?: string | null
+  new_address?: string | null
+  represent_menu?: string | null
+  lang_code_id?: string | null
+}
+
+const toRestaurantPlace = (item: RestaurantResponse): LocalPlace => ({
+  id: item.id,
+  title: item.title,
+  location: item.new_address || item.address || '',
+  tags: [
+    locale.value === 'ko' ? '#맛집' : '#Restaurants',
+    ...(item.represent_menu ? item.represent_menu.split(/[,/\n]/).slice(0, 2).map((menu) => `#${menu.trim().replace(/\s+/g, '')}`) : []),
+  ],
+  image: '',
+})
+
+const fetchRestaurants = async () => {
+  const params = new URLSearchParams({ lang: locale.value })
+  if (searchQuery.value.trim()) {
+    params.set('q', searchQuery.value.trim())
+  }
+
+  const response = await fetch(`/api/restaurants?${params.toString()}`)
+  if (!response.ok) {
+    restaurantItems.value = []
+    return
+  }
+
+  const data = await response.json() as RestaurantResponse[]
+  restaurantItems.value = data.map(toRestaurantPlace)
+}
+
 const filteredRestaurants = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return restaurants.value.filter((restaurant) => {
+  return restaurantItems.value.filter((restaurant) => {
     const text = [restaurant.title, restaurant.location, ...restaurant.tags]
       .join(' ')
       .toLowerCase()
@@ -54,31 +80,8 @@ const filteredRestaurants = computed(() => {
   })
 })
 
-async function fetchRestaurants() {
-  try {
-    const res = await fetch('/api/restaurants')
-    if (!res.ok) throw new Error('failed to load restaurant')
-
-    const rows: RestaurantRow[] = await res.json()
-    restaurants.value = rows.map((row, index) => ({
-      id: Number(row.id) || index + 1,
-      title: row.title || '제목 없음',
-      location: row.address || '서울',
-      tags: ['#맛집', '#음식점', '#냠냠'],
-    }))
-  } catch (error) {
-    console.error('Failed to load restaurants from DB', error)
-    // 4. 오타 수정 (restaurant -> restaurants)
-    restaurants.value = []
-  }
-}
-
-onMounted(() => {
-  fetchRestaurants()
-})
-
 function searchRestaurants() {
-  console.log(searchQuery.value)
+  fetchRestaurants()
 }
 
 function toggleTag(tag: string) {
@@ -88,5 +91,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchRestaurants()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchRestaurants()
+})
+
+onMounted(fetchRestaurants)
 </script>

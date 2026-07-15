@@ -11,11 +11,21 @@ TRAVEL_SPOT_TABLES = {
     "festivals": "tour_서울_축제공연행사",
 }
 
-def _fetch_travel_spot_rows(table_name: str, q: Optional[str] = None, limit: int = 200) -> List[dict]:
-    if not inspect(engine).has_table(table_name):
+def _localized_table_name(table_name: str, lang: str = "ko") -> str:
+    return f"{table_name}_en" if lang == "en" else table_name
+
+def _fetch_travel_spot_rows(
+    table_name: str,
+    q: Optional[str] = None,
+    limit: int = 200,
+    lang: str = "ko",
+) -> List[dict]:
+    source_table = _localized_table_name(table_name, lang)
+
+    if not inspect(engine).has_table(source_table):
         return []
     with engine.connect() as conn:
-        rows = conn.execute(text(f'SELECT * FROM "{table_name}"')).mappings().all()
+        rows = conn.execute(text(f'SELECT * FROM "{source_table}"')).mappings().all()
     items = [dict(row) for row in rows]
     if q:
         like_q = q.lower()
@@ -32,14 +42,17 @@ def _fetch_travel_spot_rows(table_name: str, q: Optional[str] = None, limit: int
 def _fetch_travel_spot_simple_rows(
     table_name: str,
     q: Optional[str] = None,
-    limit: int = 200
+    limit: int = 200,
+    lang: str = "ko",
 ) -> List[dict]:
-    if not inspect(engine).has_table(table_name):
+    source_table = _localized_table_name(table_name, lang)
+
+    if not inspect(engine).has_table(source_table):
         return []
 
     with engine.connect() as conn:
         rows = conn.execute(
-            text(f'SELECT contentid, firstimage, title, addr1 FROM "{table_name}"')
+            text(f'SELECT contentid, firstimage, title, addr1 FROM "{source_table}"')
         ).mappings().all()
         items = [dict(row) for row in rows]
 

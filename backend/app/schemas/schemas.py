@@ -159,3 +159,23 @@ class MapSpot(BaseModel):
     contentType: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TourItemTranslationBase(BaseModel):
+    category: str
+    contentid: str
+    lang: str
+    title: Optional[str] = None
+    addr1: Optional[str] = None
+    addr2: Optional[str] = None
+    contentType: Optional[str] = None
+
+
+class TourItemTranslationCreate(TourItemTranslationBase):
+    pass
+
+
+class TourItemTranslation(TourItemTranslationBase):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
