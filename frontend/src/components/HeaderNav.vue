@@ -1,151 +1,81 @@
 <template>
-  <header class="header">
-    <nav class="navbar">
-      <!-- 로고 -->
-      <div class="logo">
-        <RouterLink to="/">
-          <img src="@/assets/logo.svg" alt="Logo" class="logo-img">
-          <span class="logo-text">Local Hub</span>
+  <header 
+    :class="[
+      'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+      isScrolled 
+        ? 'bg-white/95 backdrop-blur-md shadow-md' 
+        : 'bg-transparent'
+    ]"
+  >
+    <nav class="relative max-w-7xl mx-auto px-4 lg:px-8 py-4 flex items-center justify-between">
+      <!-- Logo -->
+      <RouterLink to="/" class="flex items-center space-x-2 group">
+        <img 
+          src="/logos/mascot.png"
+          alt="LocalHub Logo"
+          class="h-10 w-auto"
+        />
+        <span class="font-bold text-xl text-slate-900">
+          LocalHub
+        </span>
+      </RouterLink>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <RouterLink 
+          to="/community" 
+          class="font-medium text-slate-900 transition-colors hover:text-rose-500"
+        >
+          커뮤니티
         </RouterLink>
-      </div>
+        <RouterLink 
+          to="/travel" 
+          class="font-medium text-slate-900 transition-colors hover:text-rose-500"
+        >
+          여행지
+        </RouterLink>
+        <RouterLink 
+          to="/restaurant" 
+          class="font-medium text-slate-900 transition-colors hover:text-rose-500"
+        >
+          맛집
+        </RouterLink>
+        <RouterLink 
+          to="/festival" 
+          class="font-medium text-slate-900 transition-colors hover:text-rose-500"
+        >
+          축제
+        </RouterLink>
+      </nav>
 
-      <!-- 네비게이션 메뉴 -->
-      <ul class="nav-menu">
-        <li><RouterLink to="/" :class="{ active: activeRoute === '/' }">홈</RouterLink></li>
-        <li><RouterLink to="/community" :class="{ active: activeRoute === '/community' }">커뮤니티</RouterLink></li>
-        <li><RouterLink to="/travel" :class="{ active: activeRoute === '/travel' }">여행지</RouterLink></li>
-        <li><RouterLink to="/restaurant" :class="{ active: activeRoute === '/restaurant' }">맛집</RouterLink></li>
-        <li><RouterLink to="/festival" :class="{ active: activeRoute === '/festival' }">축제</RouterLink></li>
-      </ul>
-
-      <!-- 사용자 메뉴 (로그인/회원가입) -->
-      <div class="user-menu">
-        <button class="login-btn">로그인</button>
-        <button class="signup-btn">회원가입</button>
-      </div>
+      <!-- Mobile Menu Button -->
+      <button class="md:hidden">
+        <i class="fas fa-bars text-xl text-slate-900"></i>
+      </button>
     </nav>
   </header>
+
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { RouterLink } from 'vue-router'
 
-const route = useRoute()
-const activeRoute = computed(() => route.path)
+const isScrolled = ref(false)
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 50
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
-.header {
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  height: 70px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-}
-
-.logo-img {
-  height: 40px;
-  width: auto;
-}
-
-.logo-text {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-}
-
-.nav-menu {
-  display: flex;
-  list-style: none;
-  gap: 30px;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-menu a {
-  text-decoration: none;
-  color: #666;
-  font-size: 16px;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.nav-menu a:hover,
-.nav-menu a.active {
-  color: #ff6b6b;
-}
-
-.user-menu {
-  display: flex;
-  gap: 10px;
-}
-
-.login-btn,
-.signup-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.login-btn {
-  background-color: transparent;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
-.login-btn:hover {
-  background-color: #f5f5f5;
-}
-
-.signup-btn {
-  background-color: #ff6b6b;
-  color: white;
-}
-
-.signup-btn:hover {
-  background-color: #ff5252;
-}
-
-@media (max-width: 768px) {
-  .navbar {
-    flex-wrap: wrap;
-  }
-
-  .nav-menu {
-    gap: 15px;
-    font-size: 14px;
-  }
-
-  .user-menu {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
+/* 스타일은 template에서 동적으로 처리 */
 </style>
