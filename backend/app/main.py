@@ -210,6 +210,57 @@ def read_travel_spots(
     return combined
 
 
+# id, 이미지, 이름, 주소 만 가져오는 간단한 조회용 API (검색어 가능)
+def _fetch_travel_spot_simple_rows(
+    table_name: str,
+    q: Optional[str] = None,
+    limit: int = 200
+) -> List[dict]:
+    if not inspect(engine).has_table(table_name):
+        return []
+
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(f'SELECT contentid, firstimage, title, addr1 FROM "{table_name}"')
+        ).mappings().all()
+        items = [dict(row) for row in rows]
+
+    if q:
+        like_q = q.lower()
+        items = [
+            item for item in items
+            if like_q in (item.get("title") or "").lower()
+            or like_q in (item.get("addr1") or "").lower()
+            or like_q in (item.get("contentid") or "").lower()
+        ]
+
+    return items[:limit]
+
+@app.get("/api/travel-spots-simple/attractions", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_attractions(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["attractions"], q=q)
+
+@app.get("/api/travel-spots-simple/sports", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_sports(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["sports"], q=q)
+
+@app.get("/api/travel-spots-simple/culture", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_culture(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["culture"], q=q)
+
+@app.get("/api/travel-spots-simple/shopping", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_shopping(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["shopping"], q=q)
+
+
 
 # OG 태그를 포함한 HTML을 반환하는 엔드포인트 (OpenAI 코드 / 수정 필요)
 @app.get("/share/post/{post_id}", response_class=HTMLResponse)

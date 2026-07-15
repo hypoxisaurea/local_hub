@@ -134,3 +134,13 @@ class Restaurant(RestaurantBase):
 
     class Config:
         orm_mode = True
+
+# 관광지 요약 정보 (Json 데이터 기반)
+class TravelSpotSummary(BaseModel):
+    contentid: str
+    firstimage: Optional[str] = None
+    title: str
+    addr1: Optional[str] = None
+
+    class Config:
+        orm_mode = True
