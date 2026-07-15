@@ -5,6 +5,14 @@ import FooterSection from '@/components/FooterSection.vue'
 import FloatingMascotButton from '@/components/FloatingMascotButton.vue'
 import ChatPanel from '@/components/ChatPanel.vue'
 import { useUIStore } from '@/stores/uiStore'
+/// <reference types="vite/client" />
+
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
+
 
 const ui = useUIStore()
 </script>

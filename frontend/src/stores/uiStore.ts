@@ -12,6 +12,36 @@ export interface ChatMessage {
 }
 
 const CHAT_HISTORY_KEY = 'localhub_chat_history'
+const CHAT_LANGUAGE_KEY = 'localhub_chat_language'
+
+const loadChatLanguage = (): 'ko' | 'en' => {
+  const savedLanguage = sessionStorage.getItem(CHAT_LANGUAGE_KEY)
+  return savedLanguage === 'en' ? 'en' : 'ko'
+}
+
+const detectRequestedLanguage = (message: string): 'ko' | 'en' | null => {
+  const normalizedMessage = message.toLowerCase()
+
+  if (
+    normalizedMessage.includes('영어로') ||
+    normalizedMessage.includes('영어 모드') ||
+    normalizedMessage.includes('english') ||
+    normalizedMessage.includes('speak english')
+  ) {
+    return 'en'
+  }
+
+  if (
+    normalizedMessage.includes('한국어로') ||
+    normalizedMessage.includes('한국어 모드') ||
+    normalizedMessage.includes('korean') ||
+    normalizedMessage.includes('speak korean')
+  ) {
+    return 'ko'
+  }
+
+  return null
+}
 
 const createWelcomeMessage = (): ChatMessage => ({
   id: 1,
@@ -39,13 +69,18 @@ export const useUIStore = defineStore('ui', () => {
   const showWriteModal = ref(false)
   const showAuthModal = ref(false)
   const showChat = ref(false)
-  const currentLang = ref<'ko' | 'en'>('ko')
+  const currentLang = ref<'ko' | 'en'>(loadChatLanguage())
   const toastMessage = ref('')
   const isTyping = ref(false)
   const chatMessages = ref<ChatMessage[]>(loadChatHistory())
 
   const saveChatHistory = () => {
     sessionStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatMessages.value))
+  }
+
+  const setChatLanguage = (language: 'ko' | 'en') => {
+    currentLang.value = language
+    sessionStorage.setItem(CHAT_LANGUAGE_KEY, language)
   }
 
   const setView = (view: ViewType) => {
@@ -60,7 +95,7 @@ export const useUIStore = defineStore('ui', () => {
   }
 
   const toggleLang = () => {
-    currentLang.value = currentLang.value === 'ko' ? 'en' : 'ko'
+    setChatLanguage(currentLang.value === 'ko' ? 'en' : 'ko')
     showToast(currentLang.value === 'ko' ? '한국어로 변경되었습니다.' : 'Switched to English.')
   }
 
@@ -109,6 +144,11 @@ export const useUIStore = defineStore('ui', () => {
       return
     }
 
+    const requestedLanguage = detectRequestedLanguage(message)
+    if (requestedLanguage) {
+      setChatLanguage(requestedLanguage)
+    }
+
     addChatMessage('user', message)
     isTyping.value = true
 
@@ -126,7 +166,7 @@ export const useUIStore = defineStore('ui', () => {
               role: chatMessage.role,
               content: chatMessage.content
             })),
-          language: currentLang.value
+          language: requestedLanguage || currentLang.value
         })
       })
 
@@ -160,6 +200,7 @@ export const useUIStore = defineStore('ui', () => {
     setView,
     showToast,
     toggleLang,
+    setChatLanguage,
     openWriteModal,
     closeWriteModal,
     openAuthModal,

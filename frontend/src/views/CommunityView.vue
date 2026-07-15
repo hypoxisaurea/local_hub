@@ -4,8 +4,8 @@
       
       <!-- Page Header -->
       <div class="mb-12">
-        <h1 class="text-4xl font-black text-slate-900 mb-3">커뮤니티</h1>
-        <p class="text-slate-500 text-lg">지역 커뮤니티와 소통하세요</p>
+        <h1 class="text-4xl font-black text-slate-900 mb-3">{{ pageTitle }}</h1>
+        <p class="text-slate-500 text-lg">{{ pageSubtitle }}</p>
       </div>
 
       <!-- Category & Search Section -->
@@ -54,11 +54,11 @@
             v-model="searchQuery" 
             @keyup.enter="runSearch"
             type="text" 
-            placeholder="게시글 검색..." 
+            :placeholder="searchPlaceholder"
             class="flex-1 bg-transparent border-none text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
           >
           <button @click="runSearch" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">
-            검색
+            {{ searchLabel }}
           </button>
         </div>
       </div>
@@ -84,11 +84,11 @@
         <!-- No Posts Message -->
         <div v-else class="bg-slate-50 border border-slate-200 rounded-2xl p-16 text-center">
           <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
-          <p class="text-slate-500 font-semibold">게시글이 없습니다.</p>
-          <p class="text-slate-400 text-sm mt-1">첫 번째 게시글을 작성해보세요!</p>
+          <p class="text-slate-500 font-semibold">{{ emptyLabel }}</p>
+          <p class="text-slate-400 text-sm mt-1">{{ emptyHint }}</p>
           <button @click="ui.openWriteModal()" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold mt-4 transition-all shadow-md shadow-rose-100">
             <i class="fas fa-pen-fancy mr-2"></i>
-            글 작성하기
+              {{ writeLabel }}
           </button>
         </div>
       </div>
@@ -97,19 +97,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { usePortalStore } from '@/stores/portalStore'
 import { useUIStore } from '@/stores/uiStore'
 import type { Post } from '@/stores/portalStore'
 import PostCard from '@/components/PostCard.vue'
 
-// Store 인스턴스
 const portal = usePortalStore()
 const ui = useUIStore()
 
-// 로컬 상태
 const searchQuery = ref('')
-const categories = ['여행지', '맛집', '카페', '축제', '팁/후기']
+
+
+const pageTitle = computed(() => ui.currentLang === 'ko' ? '커뮤니티' : 'Community')
+const pageSubtitle = computed(() =>
+  ui.currentLang === 'ko' ? '지역 커뮤니티와 소통하세요' : 'Connect with your local community'
+)
+const searchPlaceholder = computed(() =>
+  ui.currentLang === 'ko' ? '게시글 검색...' : 'Search posts...'
+)
+const searchLabel = computed(() => ui.currentLang === 'ko' ? '검색' : 'Search')
+const allPostsLabel = computed(() => ui.currentLang === 'ko' ? '전체 게시글' : 'All posts')
+const writeLabel = computed(() => ui.currentLang === 'ko' ? '글 작성하기' : 'Write a post')
+const emptyLabel = computed(() => ui.currentLang === 'ko' ? '게시글이 없습니다.' : 'No posts yet.')
 
 // 검색 실행
 const runSearch = () => {

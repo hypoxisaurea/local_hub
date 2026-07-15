@@ -56,6 +56,9 @@ User question:
 Detected route:
 {route}
 
+Preferred response language:
+{language}
+
 Provided data candidates:
 {context}
 
@@ -69,6 +72,7 @@ Before writing:
 2. Check which details are confirmed by the provided data.
 3. Do not guess any missing factual information.
 4. Choose the most practical and comfortable recommendation for the traveler.
+5. If the preferred response language is "en", write the response in English until the user asks to switch languages.
 
 Response structure:
 - Start with one short, warm reaction that matches the user's request.
