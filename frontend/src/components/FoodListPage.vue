@@ -172,7 +172,7 @@ function updateSearchQuery(event: Event) {
 
 .place-section {
   width: 100%;
-  max-width: 780px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -185,7 +185,7 @@ function updateSearchQuery(event: Event) {
 
 .place-card {
   width: calc((100% - 24px) / 2);
-  max-width: 378px;
+  max-width: none;
   overflow: hidden;
 }
 

@@ -30,7 +30,7 @@
         <div class="flex flex-wrap justify-center gap-3">
           <!-- 전체보기 버튼 -->
           <button 
-            @click="portal.selectedCategory = '전체'" 
+            @click="selectCategory('전체')"
             :class="[
               'w-40 p-4 rounded-2xl flex flex-col items-center justify-center border transition-all hover:shadow-md',
               portal.selectedCategory === '전체' 
@@ -48,7 +48,7 @@
           <button 
             v-for="cat in categories" 
             :key="cat"
-            @click="portal.selectedCategory = cat"
+            @click="selectCategory(cat)"
             :class="[
               'w-40 p-4 rounded-2xl flex flex-col items-center justify-center border transition-all hover:shadow-md',
               portal.selectedCategory === cat 
@@ -96,12 +96,51 @@
         <!-- Posts Grid -->
         <div v-if="portal.filteredPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
           <PostCard 
-            v-for="post in portal.filteredPosts" 
+            v-for="post in paginatedPosts" 
             :key="post.id"
             :post="post"
             @click="viewPost(post)"
           />
         </div>
+
+        <!-- 페이지네이션 -->
+          <div
+            v-if="portal.filteredPosts.length > 0"
+            class="mt-10 flex items-center justify-center gap-2"
+          >
+            <button
+              type="button"
+              class="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage === 1"
+              @click="movePage(currentPage - 1)"
+            >
+              이전
+            </button>
+
+            <button
+              v-for="page in pageNumbers"
+              :key="page"
+              type="button"
+              class="h-10 w-10 rounded-lg border text-sm font-bold transition-colors"
+              :class="
+                currentPage === page
+                  ? 'border-rose-500 bg-rose-500 text-white'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+              "
+              @click="movePage(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              type="button"
+              class="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage === totalPages"
+              @click="movePage(currentPage + 1)"
+            >
+              다음
+            </button>
+          </div>
 
         <!-- No Posts Message -->
         <div v-else class="bg-slate-50 border border-slate-200 rounded-2xl p-16 text-center">
@@ -391,6 +430,8 @@ const passwordAction = ref<'edit' | 'delete'>('edit')
 // 검색 실행
 const runSearch = () => {
   portal.searchQuery = searchQuery.value
+  currentPage.value = 1 // 검색하면 첫 페이지부터 표시
+
   if (searchQuery.value.trim()) {
     ui.showToast(`"${searchQuery.value}" 검색이 적용되었습니다.`)
   }
@@ -535,6 +576,34 @@ const formatPostDate = (dateString: string) => {
     minute: '2-digit',
   })
 }
+
+const selectCategory = (category: string) => {
+  portal.selectedCategory = category
+  currentPage.value = 1
+}
+
+const POSTS_PER_PAGE = 6 // 한 페이지에 보일 게시글 수
+const currentPage = ref(1)
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(portal.filteredPosts.length / POSTS_PER_PAGE))
+})
+
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * POSTS_PER_PAGE
+  const end = start + POSTS_PER_PAGE
+
+  return portal.filteredPosts.slice(start, end)
+})
+
+const pageNumbers = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, index) => index + 1)
+})
+
+const movePage = (page: number) => {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
+}
+
 const verifyPostPassword = () => {
   if (!editingPost.value) return
 
