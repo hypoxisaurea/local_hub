@@ -13,19 +13,54 @@ PROJECT_DIR = BACKEND_DIR.parent
 class ChatbotSettings(BaseSettings):
     openai_api_key: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("OPENAI_API_KEY", "CHATBOT_OPENAI_API_KEY"),
+        validation_alias=AliasChoices(
+            "OPENAI_API_KEY",
+            "OPEN_AI_API_KEY",
+            "CHATBOT_OPENAI_API_KEY",
+            "CHATBOT_OPEN_AI_API_KEY",
+        ),
     )
     openai_model: str = Field(
         default="gpt-4o-mini",
-        validation_alias=AliasChoices("OPENAI_MODEL", "CHATBOT_OPENAI_MODEL"),
+        validation_alias=AliasChoices(
+            "OPENAI_MODEL",
+            "OPEN_AI_MODEL",
+            "CHATBOT_OPENAI_MODEL",
+            "CHATBOT_OPEN_AI_MODEL",
+        ),
     )
-    temperature: float = 0.2
-    data_dir: Path = PROJECT_DIR / "data"
-    max_search_results: int = 6
-    max_context_items: int = 8
+    temperature: float = Field(
+        default=0.2,
+        validation_alias=AliasChoices(
+            "OPENAI_TEMPERATURE",
+            "CHATBOT_TEMPERATURE",
+        ),
+    )
+    data_dir: Path = Field(
+        default=PROJECT_DIR / "data",
+        validation_alias=AliasChoices(
+            "DATA_DIR",
+            "CHATBOT_DATA_DIR",
+        ),
+    )
+    max_context_items: int = Field(
+        default=8,
+        validation_alias=AliasChoices(
+            "MAX_CONTEXT_ITEMS",
+            "CHATBOT_MAX_CONTEXT_ITEMS",
+        ),
+    )
+    max_search_results: int = Field(
+        default=5,
+        validation_alias=AliasChoices(
+            "MAX_SEARCH_RESULTS",
+            "CHATBOT_MAX_SEARCH_RESULTS",
+        ),
+    )
 
     model_config = SettingsConfigDict(
         env_file=(
+            PROJECT_DIR / ".env",
             BACKEND_DIR / ".env",
             CHATBOT_DIR / "api" / ".env",
         ),
