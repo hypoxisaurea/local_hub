@@ -50,6 +50,7 @@
 
 <style scoped>
 .footer {
+  --color-pink-600: oklch(59.2% 0.249 0.584);
   background-color: #333;
   color: #fff;
   padding: 40px 20px 20px;
@@ -67,7 +68,7 @@
 .footer-section h4 {
   font-size: 16px;
   margin-bottom: 15px;
-  color: #ff6b6b;
+  color: var(--color-pink-600);
 }
 
 .footer-section p {
@@ -94,7 +95,7 @@
 }
 
 .footer-section a:hover {
-  color: #ff6b6b;
+  color: var(--color-pink-600);
 }
 
 .social-links {
@@ -117,7 +118,7 @@
 }
 
 .social-icon:hover {
-  background-color: #ff6b6b;
+  color: var(--color-pink-600);
 }
 
 .footer-bottom {
