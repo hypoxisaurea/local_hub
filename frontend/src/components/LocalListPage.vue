@@ -53,21 +53,6 @@
             <p>조건에 맞는 결과가 없어요.</p>
           </div>
         </section>
-
-        <aside class="sidebar">
-          <section class="ai-card">
-            <h2>
-              <i class="fa-solid fa-robot"></i>
-              LocalHub AI
-            </h2>
-
-            <p>{{ aiDescription }}</p>
-
-            <button type="button" @click="emit('recommend')">
-              추천받기
-            </button>
-          </section>
-        </aside>
       </div>
     </div>
   </section>
@@ -181,21 +166,25 @@ function updateSearchQuery(event: Event) {
 }
 
 .local-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 256px;
-  gap: 30px;
   margin-top: 30px;
+}
 
-  align-items: start;
+.place-section {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
 }
 
 .place-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 24px;
 }
 
 .place-card {
+  width: calc((100% - 24px) / 2);
+  max-width: 378px;
   overflow: hidden;
 }
 
@@ -242,33 +231,6 @@ function updateSearchQuery(event: Event) {
   align-content: start;
 }
 
-.ai-card {
-  align-self: start;
-  height: fit-content;
-}
-
-.ai-card h2 {
-  margin: 0;
-}
-
-.ai-card p {
-  margin: 12px 0 17px;
-  font-size: 0.87rem;
-  line-height: 1.55;
-}
-
-.ai-card button {
-  width: 100%;
-  min-height: 41px;
-  border: 0;
-  border-radius: 11px;
-  background: white;
-  color: #ed3e94;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-
 .empty-state {
   display: grid;
   min-height: 300px;
@@ -296,10 +258,9 @@ function updateSearchQuery(event: Event) {
   .search-panel {
     padding: 24px 18px;
   }
-
-  .place-grid,
-  .sidebar {
-    grid-template-columns: 1fr;
+  .place-card {
+    width: 100%;
+    max-width: 100%;
   }
 }
 </style>

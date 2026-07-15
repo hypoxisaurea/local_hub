@@ -52,35 +52,6 @@
             <p>조건에 맞는 결과가 없어요.</p>
           </div>
         </section>
-
-        <aside class="sidebar">
-          <section class="ai-card">
-            <h2>
-              <i class="fa-solid fa-robot"></i>
-              LocalHub AI
-            </h2>
-
-            <p>{{ aiDescription }}</p>
-
-            <button type="button" @click="emit('recommend')">
-              추천받기
-            </button>
-          </section>
-
-          <section class="popular-card">
-            <h2>이번 주 인기 검색어</h2>
-
-            <ol>
-              <li v-for="keyword in popularKeywords" :key="keyword.rank">
-                <button type="button" @click="emit('keyword-click', keyword.text)">
-                  <span>{{ keyword.rank }}. {{ keyword.text }}</span>
-                  <strong v-if="keyword.change > 0">▲{{ keyword.change }}</strong>
-                  <small v-else>-</small>
-                </button>
-              </li>
-            </ol>
-          </section>
-        </aside>
       </div>
     </div>
   </section>
@@ -196,19 +167,25 @@ function updateSearchQuery(event: Event) {
 }
 
 .local-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 256px;
-  gap: 30px;
   margin-top: 30px;
 }
 
+.place-section {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
 .place-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 24px;
 }
 
 .place-card {
+  width: calc((100% - 24px) / 2);
+  max-width: 378px;
   overflow: hidden;
 }
 
@@ -252,66 +229,6 @@ function updateSearchQuery(event: Event) {
   gap: 24px;
 }
 
-.ai-card {
-  padding: 25px 24px;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #f1419a, #e83891);
-  color: white;
-}
-
-.ai-card h2 {
-  margin: 0;
-}
-
-.ai-card p {
-  margin: 12px 0 17px;
-  font-size: 0.87rem;
-  line-height: 1.55;
-}
-
-.ai-card button {
-  width: 100%;
-  min-height: 41px;
-  border: 0;
-  border-radius: 11px;
-  background: white;
-  color: #ed3e94;
-  font: inherit;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.popular-card {
-  padding: 25px 24px;
-}
-
-.popular-card h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.popular-card ol {
-  margin: 16px 0 0;
-  padding-left: 18px;
-}
-
-.popular-card li + li {
-  margin-top: 12px;
-}
-
-.popular-card button {
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.popular-card strong {
-  color: #ed3e94;
-}
-
 .empty-state {
   display: grid;
   min-height: 300px;
@@ -340,9 +257,9 @@ function updateSearchQuery(event: Event) {
     padding: 24px 18px;
   }
 
-  .place-grid,
-  .sidebar {
-    grid-template-columns: 1fr;
+  .place-card {
+    width: 100%;
+    max-width: 100%;
   }
 }
 </style>

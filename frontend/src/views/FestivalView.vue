@@ -6,12 +6,10 @@
     :selected-tag="selectedTag"
     :recommended-tags="recommendedTags"
     :items="filteredFestivals"
-    ai-description="이번 주말에 즐기기 좋은 축제와 행사를 추천해드려요!"
     @update:search-query="searchQuery = $event"
     @search="searchFestivals"
     @tag-click="toggleTag"
     @keyword-click="searchKeyword"
-    @recommend="recommendFestival"
   />
 </template>
 
@@ -67,9 +65,5 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
-}
-
-function recommendFestival() {
-  console.log('축제 추천 요청')
 }
 </script>

@@ -8,12 +8,10 @@
     :selected-tag="selectedTag"
     :recommended-tags="recommendedTags"
     :items="filteredPlaces"
-    ai-description="지금 당신의 취향에 딱 맞는 여행지를 추천해드려요!"
     @update:search-query="searchQuery = $event"
     @search="searchPlaces"
     @tag-click="toggleTag"
     @keyword-click="searchKeyword"
-    @recommend="recommendTravel"
   />
 </template>
 
@@ -90,16 +88,5 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
-}
-
-function recommendTravel() {
-  const firstPlace = filteredPlaces.value[0]
-
-  if (!firstPlace) {
-    console.log('추천할 여행지가 없습니다.')
-    return
-  }
-
-  console.log('추천 여행지:', firstPlace.title)
 }
 </script>

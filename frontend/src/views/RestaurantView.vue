@@ -6,12 +6,10 @@
     :selected-tag="selectedTag"
     :recommended-tags="recommendedTags"
     :items="filteredRestaurants"
-    ai-description="당신의 취향과 현재 위치에 맞는 맛집을 추천해드려요!"
     @update:search-query="searchQuery = $event"
     @search="searchRestaurants"
     @tag-click="toggleTag"
     @keyword-click="searchKeyword"
-    @recommend="recommendRestaurant"
   />
 </template>
 
@@ -67,9 +65,5 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
-}
-
-function recommendRestaurant() {
-  console.log('맛집 추천 요청')
 }
 </script>
