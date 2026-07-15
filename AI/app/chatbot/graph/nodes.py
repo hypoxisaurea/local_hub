@@ -88,6 +88,7 @@ async def generate_answer(state: ChatbotState) -> ChatbotState:
             {
                 "message": state["message"],
                 "route": route,
+                "language": state.get("language") or "ko",
                 "context": format_context(docs),
                 "history": _format_history(state.get("history")),
             }

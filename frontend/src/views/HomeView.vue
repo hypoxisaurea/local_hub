@@ -131,19 +131,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { usePortalStore } from '@/stores/portalStore'
 import { useUIStore } from '@/stores/uiStore'
 
-// Store 인스턴스
 const portal = usePortalStore()
 const ui = useUIStore()
 
-// 로컬 상태
 const searchQuery = ref('')
 
-// 검색 실행
+const title = computed(() =>
+  ui.currentLang === 'ko'
+    ? '서울, 우리끼리 로컬 정보 공유해요!'
+    : 'Share local Seoul tips together!'
+)
+
+const subtitle = computed(() =>
+  ui.currentLang === 'ko'
+    ? '여행자들의 생생한 리뷰와 꿀팁을 한 곳에서 만나보세요.'
+    : 'Discover real traveler reviews and hidden gems in one place.'
+)
+
+const placeholder = computed(() =>
+  ui.currentLang === 'ko'
+    ? '어디를 찾고 있나요? (예: 을지로, 맛집, 성수동)'
+    : 'Where are you looking for? (e.g. Euljiro, food, Seongsu)'
+)
+
+const searchLabel = computed(() => ui.currentLang === 'ko' ? '검색' : 'Search')
+const chatbotText = computed(() =>
+  ui.currentLang === 'ko'
+    ? '여행 계획 도와드려요! 클릭해서 시작하세요.'
+    : 'Need help planning your trip? Click to start.'
+)
+
 const runSearch = () => {
   portal.searchQuery = searchQuery.value
   if (searchQuery.value.trim()) {
@@ -151,7 +173,6 @@ const runSearch = () => {
   }
 }
 
-// 태그 적용
 const applyTag = (tag: string) => {
   const cleaned = tag.replace('#', '').trim()
   searchQuery.value = cleaned
@@ -159,7 +180,3 @@ const applyTag = (tag: string) => {
   portal.selectedCategory = '전체'
 }
 </script>
-
-<style scoped>
-/* 애니메이션이 필요하면 여기 추가 */
-</style>
