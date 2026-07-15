@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useUIStore } from '@/stores/uiStore'
 
 const ui = useUIStore()
+const { t } = useI18n()
 const footerOffset = ref(0)
 
 let frameId = 0
@@ -46,7 +48,7 @@ onBeforeUnmount(() => {
     type="button"
     class="floating-mascot-button"
     :style="{ '--floating-footer-offset': `${footerOffset}px` }"
-    aria-label="LocalHub AI 열기"
+    :aria-label="t('chat.open')"
     title="LocalHub AI"
     @click="ui.toggleChat()"
   >

@@ -21,7 +21,7 @@ from ..db.base import Base, engine
 from ..models import models
 
 def get_data_directory() -> Path:
-    return Path(__file__).resolve().parents[2] / "data"
+    return Path(__file__).resolve().parents[3] / "data"
 
 def _normalize_table_name(stem: str) -> str:
     name = stem.lower().replace(" ", "_").replace("-", "_")

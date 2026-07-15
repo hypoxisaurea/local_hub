@@ -3,33 +3,33 @@
     <div class="footer-content">
       <div class="footer-section">
         <h4>Local Hub</h4>
-        <p>지역의 숨겨진 보석들을 발견하세요.</p>
+        <p>{{ t('footer.description') }}</p>
       </div>
 
       <div class="footer-section">
-        <h4>메뉴</h4>
+        <h4>{{ t('footer.menu') }}</h4>
         <ul>
-          <li><RouterLink to="/">홈</RouterLink></li>
-          <li><RouterLink to="/community">커뮤니티</RouterLink></li>
-          <li><RouterLink to="/travel">여행지</RouterLink></li>
-          <li><RouterLink to="/restaurant">맛집</RouterLink></li>
-          <li><RouterLink to="/festival">축제</RouterLink></li>
+          <li><RouterLink to="/">{{ t('footer.home') }}</RouterLink></li>
+          <li><RouterLink to="/community">{{ t('nav.community') }}</RouterLink></li>
+          <li><RouterLink to="/travel">{{ t('nav.travel') }}</RouterLink></li>
+          <li><RouterLink to="/restaurant">{{ t('nav.restaurant') }}</RouterLink></li>
+          <li><RouterLink to="/festival">{{ t('nav.festival') }}</RouterLink></li>
         </ul>
       </div>
 
       <div class="footer-section">
-        <h4>고객지원</h4>
+        <h4>{{ t('footer.support') }}</h4>
         <ul>
-          <li><a href="#">공지사항</a></li>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">문의하기</a></li>
-          <li><a href="#">이용약관</a></li>
-          <li><a href="#">개인정보처리방침</a></li>
+          <li><a href="#">{{ t('footer.notice') }}</a></li>
+          <li><a href="#">{{ t('footer.faq') }}</a></li>
+          <li><a href="#">{{ t('footer.contact') }}</a></li>
+          <li><a href="#">{{ t('footer.terms') }}</a></li>
+          <li><a href="#">{{ t('footer.privacy') }}</a></li>
         </ul>
       </div>
 
       <div class="footer-section">
-        <h4>팔로우</h4>
+        <h4>{{ t('footer.follow') }}</h4>
         <div class="social-links">
           <a href="#" class="social-icon">Facebook</a>
           <a href="#" class="social-icon">Twitter</a>
@@ -45,7 +45,10 @@
 </template>
 
 <script setup lang="ts">
-// Footer 로직 필요시 여기에 추가
+import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

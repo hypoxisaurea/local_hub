@@ -5,7 +5,7 @@
       <div class="flex items-center space-x-3">
         <!-- Category Badge -->
         <span class="inline-flex items-center px-3 py-1 bg-rose-50 text-rose-600 rounded-full text-xs font-bold border border-rose-200">
-          {{ post.category }}
+          {{ categoryLabel(post.category) }}
         </span>
         <!-- Timestamp -->
         <span class="text-xs text-slate-400 font-medium">{{ formatTime(post.createdAt) }}</span>
@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Post } from '@/stores/portalStore'
 
 const props = defineProps<{
@@ -48,6 +49,19 @@ const emit = defineEmits<{
 }>()
 
 const liked = ref(false)
+const { locale, t } = useI18n()
+
+const categoryLabel = (category: string) => {
+  const labels: Record<string, string> = {
+    전체: t('categories.all'),
+    여행지: t('categories.travel'),
+    맛집: t('categories.restaurant'),
+    축제: t('categories.festival'),
+    카페: t('categories.cafe'),
+  }
+
+  return labels[category] ?? category
+}
 
 // 시간 포맷팅 (예: "2시간 전")
 const formatTime = (dateString: string): string => {
@@ -57,6 +71,15 @@ const formatTime = (dateString: string): string => {
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
+
+  if (locale.value === 'en') {
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min ago`
+    if (diffHours < 24) return `${diffHours} hr ago`
+    if (diffDays < 7) return `${diffDays} days ago`
+
+    return date.toLocaleDateString('en-US')
+  }
 
   if (diffMins < 1) return '방금 전'
   if (diffMins < 60) return `${diffMins}분 전`

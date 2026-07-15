@@ -96,7 +96,7 @@ export const usePortalStore = defineStore('portal', () => {
 
   // 게시글 추가
   const addPost = (
-    post: Omit<Post, 'id' | 'createdAt'>
+    post: Omit<Post, 'id' | 'createdAt' | 'likes' | 'comments'>
   ) => {
     const newPost: Post = {
       ...post,
