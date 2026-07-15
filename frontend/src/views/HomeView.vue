@@ -360,6 +360,7 @@ const fetchMapSpots = async () => {
   try {
     const params = new URLSearchParams({
       category: selectedMapCategory.value,
+      lang: ui.currentLang,
       limit: selectedMapCategory.value === "all" ? "600" : "300",
     });
 
@@ -426,6 +427,13 @@ onMounted(async () => {
 watch(selectedMapCategory, () => {
   fetchMapSpots();
 });
+
+watch(
+  () => ui.currentLang,
+  () => {
+    fetchMapSpots();
+  }
+);
 
 onBeforeUnmount(() => {
   markerLayer?.clearLayers();
