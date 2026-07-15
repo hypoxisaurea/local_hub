@@ -53,3 +53,9 @@ def read_travel_spots_shopping(
     q: Optional[str] = Query(None, description="검색어"),
 ):
     return crud_travel_spots._fetch_travel_spot_simple_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["shopping"], q=q)
+
+@router.get("/travel-spots-simple/festivals", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_festivals(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return crud_travel_spots._fetch_travel_spot_simple_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["festivals"], q=q)

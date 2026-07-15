@@ -14,54 +14,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '@/components/LocalListPage.vue'
 import type { LocalPlace } from '@/types/local'
 
+interface FestivalRow {
+  contentid: string
+  firstimage?: string | null
+  title: string
+  addr1?: string | null
+}
+
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
+const festivals = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
     ? ['#야외행사', '#전시', '#공연', '#무료']
     : ['#Outdoor', '#Exhibition', '#Performance', '#Free']
 )
-
-const festivals = computed<LocalPlace[]>(() => locale.value === 'ko'
-  ? [
-      {
-        id: 1,
-        title: '서울 재즈 페스티벌',
-        location: '서울특별시 송파구',
-        tags: ['#공연', '#야외행사', '#음악'],
-        image: '/images/seoul-jazz.jpg',
-      },
-      {
-        id: 2,
-        title: '한강 불빛 축제',
-        location: '서울특별시 영등포구',
-        tags: ['#야경', '#무료', '#야외행사'],
-        image: '/images/hangang-light.jpg',
-      },
-    ]
-  : [
-      {
-        id: 1,
-        title: 'Seoul Jazz Festival',
-        location: 'Songpa-gu, Seoul',
-        tags: ['#Performance', '#Outdoor', '#Music'],
-        image: '/images/seoul-jazz.jpg',
-      },
-      {
-        id: 2,
-        title: 'Hangang Light Festival',
-        location: 'Yeongdeungpo-gu, Seoul',
-        tags: ['#NightView', '#Free', '#Outdoor'],
-        image: '/images/hangang-light.jpg',
-      },
-    ])
 
 const filteredFestivals = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
@@ -75,6 +49,29 @@ const filteredFestivals = computed(() => {
 
     return (!query || text.includes(query)) && (!tag || text.includes(tag))
   })
+})
+
+async function fetchFestivals() {
+  try {
+    const res = await fetch('/api/travel-spots-simple/festivals')
+    if (!res.ok) throw new Error('failed to load festivals')
+
+    const rows: FestivalRow[] = await res.json()
+    festivals.value = rows.map((row, index) => ({
+      id: Number(row.contentid) || index + 1,
+      title: row.title || '제목 없음',
+      location: row.addr1 || '서울',
+      tags: ['#축제', '#공연', '#행사'],
+      image: row.firstimage || '/images/default-festival.jpg',
+    }))
+  } catch (error) {
+    console.error('Failed to load festivals from DB', error)
+    festivals.value = []
+  }
+}
+
+onMounted(() => {
+  fetchFestivals()
 })
 
 function searchFestivals() {
