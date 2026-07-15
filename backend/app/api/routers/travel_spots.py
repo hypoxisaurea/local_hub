@@ -30,25 +30,25 @@ def read_travel_spots_festivals(q: Optional[str] = Query(None)):
 
 
 # id, 이미지, 이름, 주소 만 가져오는 간단한 조회용 API (검색어 가능)
-@router.get("/api/travel-spots-simple/attractions", response_model=List[schemas.TravelSpotSummary])
+@router.get("/travel-spots-simple/attractions", response_model=List[schemas.TravelSpotSummary])
 def read_travel_spots_attractions(
     q: Optional[str] = Query(None, description="검색어"),
 ):
     return crud_travel_spots._fetch_travel_spot_simple_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["attractions"], q=q)
 
-@router.get("/api/travel-spots-simple/sports", response_model=List[schemas.TravelSpotSummary])
+@router.get("/travel-spots-simple/sports", response_model=List[schemas.TravelSpotSummary])
 def read_travel_spots_sports(
     q: Optional[str] = Query(None, description="검색어"),
 ):
     return crud_travel_spots._fetch_travel_spot_simple_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["sports"], q=q)
 
-@router.get("/api/travel-spots-simple/culture", response_model=List[schemas.TravelSpotSummary])
+@router.get("/travel-spots-simple/culture", response_model=List[schemas.TravelSpotSummary])
 def read_travel_spots_culture(
     q: Optional[str] = Query(None, description="검색어"),
 ):
     return crud_travel_spots._fetch_travel_spot_simple_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["culture"], q=q)
 
-@router.get("/api/travel-spots-simple/shopping", response_model=List[schemas.TravelSpotSummary])
+@router.get("/travel-spots-simple/shopping", response_model=List[schemas.TravelSpotSummary])
 def read_travel_spots_shopping(
     q: Optional[str] = Query(None, description="검색어"),
 ):
