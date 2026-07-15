@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 # from .db.base import engine
-from .db.base import SessionLocal
+from .db.base import SessionLocal, Base, engine
 from .services.seed import seed_initial_data
 from .services.tour_loader import load_tour_items_separate_tables as load_tour_items
 from .services.restaurant_loader import load_restaurant_items
@@ -11,6 +11,7 @@ app = FastAPI(title="LocalHub API", version="0.1.0")
 
 @app.on_event("startup")
 def on_startup():
+    Base.metadata.create_all(bind=engine)
     with SessionLocal() as conn:
         seed_initial_data(conn)
         load_tour_items(conn)
