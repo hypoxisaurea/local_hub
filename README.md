@@ -121,7 +121,7 @@ sqlalchemy==2.0.22
 bash setup.sh
 ```
 
-`backend/requirements.txt`는 루트 `requirements.txt`를 참조합니다. 따라서 백엔드 의존성을 추가할 때도 루트 파일을 수정하면 됩니다.
+Python 의존성은 루트 `requirements.txt` 하나로만 관리합니다. 백엔드와 AI 의존성을 추가할 때도 루트 파일만 수정하면 됩니다.
 
 ## 백엔드 실행
 
