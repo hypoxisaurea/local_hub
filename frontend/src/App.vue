@@ -1,20 +1,24 @@
-<template>
-  <MainLayout />
-</template>
-
 <script setup lang="ts">
-import MainLayout from '@/layouts/MainLayout.vue'
+import { RouterView } from 'vue-router'
+import HeaderNav from '@/components/HeaderNav.vue'
+import FooterSection from '@/components/FooterSection.vue'
 </script>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+<template>
+  <div id="app" class="min-h-screen flex flex-col bg-white">
+    <!-- Header Navigation (투명) -->
+    <HeaderNav />
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f9f9f9;
-}
+    <!-- Main Content -->
+    <main class="flex-1">
+      <RouterView />
+    </main>
+
+    <!-- Footer -->
+    <FooterSection />
+  </div>
+</template>
+
+<style scoped>
+/* Global styles */
 </style>

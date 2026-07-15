@@ -1,8 +1,18 @@
 <template>
   <section class="w-full flex-1 flex flex-col animate-fadeIn">
     
-    <!-- Hero Banner -->
-    <div class="relative bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-rose-500/10 py-12 lg:py-20 px-6 lg:px-16 overflow-hidden">
+    <!-- Hero Banner with Background Image -->
+    <div 
+      class="relative py-12 lg:py-24 px-6 lg:px-16 overflow-hidden"
+      :style="{ 
+        backgroundImage: 'url(/banners/banner.png)',
+        backgroundSize: 'contain',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }"
+    >
+      
+      <!-- Content -->
       <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
         
         <!-- Left Hero Column -->
@@ -16,20 +26,20 @@
             <span class="text-xs font-bold text-slate-700">공공데이터 실시간 연동 완료</span>
           </div>
           
-          <!-- Main Title -->
+          <!-- Main Title (텍스트색 변경) -->
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
             서울, 우리끼리 <br class="hidden sm:inline">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-600">로컬 정보 공유해요!</span>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-pink-300">로컬 정보 공유해요!</span>
           </h1>
           
-          <!-- Description -->
-          <p class="text-slate-500 text-sm sm:text-base max-w-xl font-medium leading-relaxed">
+          <!-- Description (텍스트색 변경) -->
+          <p class="text-slate-700 text-sm sm:text-base max-w-xl font-medium leading-relaxed">
             여행자들의 생생한 리뷰와 꿀팁을 한 곳에서 만나보세요. <br class="hidden xs:inline">
             가입이나 로그인 절차 없이, 익명으로 자유롭게 소통하는 프리미엄 커뮤니티 공간입니다.
           </p>
 
           <!-- Hero Search Bar -->
-          <div class="max-w-lg bg-white p-2 rounded-2xl shadow-xl shadow-slate-100 border border-slate-100 flex items-center space-x-2">
+          <div class="max-w-lg bg-white/95 backdrop-blur-sm p-2 rounded-2xl shadow-xl shadow-slate-900/20 border border-white/30 flex items-center space-x-2">
             <i class="fas fa-magnifying-glass text-slate-400 ml-3"></i>
             <input 
               v-model="searchQuery" 
@@ -45,19 +55,11 @@
 
           <!-- Trending Hashtags -->
           <div class="flex flex-wrap gap-2 pt-2 text-xs">
-            <span class="text-slate-400 font-semibold self-center">추천 검색어:</span>
-            <button @click="applyTag('#명동 카페')" class="bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-500 border border-slate-200/60 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all">#명동 카페</button>
-            <button @click="applyTag('#남산 야경')" class="bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-500 border border-slate-200/60 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all">#남산 야경</button>
-            <button @click="applyTag('#을지로 핫플')" class="bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-500 border border-slate-200/60 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all">#을지로 핫플</button>
-            <button @click="applyTag('#실시간 혼잡도')" class="bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-500 border border-slate-200/60 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all">#실시간 혼잡도</button>
-          </div>
-        </div>
-
-        <!-- Right Column - Mascot -->
-        <div class="lg:col-span-5 flex justify-center items-center relative min-h-[300px]">
-          <div class="text-center">
-            <i class="fas fa-map-location-dot text-8xl text-rose-500 opacity-20 animate-bounce"></i>
-            <p class="mt-4 text-slate-400 font-semibold text-sm">지도를 탐색하며 정보 공유하기</p>
+            <span class="text-slate-900 font-semibold self-center">추천 검색어:</span>
+            <button @click="applyTag('#명동 카페')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#명동 카페</button>
+            <button @click="applyTag('#남산 야경')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#남산 야경</button>
+            <button @click="applyTag('#을지로 핫플')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#을지로 핫플</button>
+            <button @click="applyTag('#실시간 혼잡도')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#실시간 혼잡도</button>
           </div>
         </div>
       </div>

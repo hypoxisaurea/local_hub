@@ -73,6 +73,50 @@ def health_check():
     return {"status": "ok"}
 
 
+@app.get("/api/posts", response_model=List[schemas.Post])
+def read_posts(
+    q: Optional[str] = Query(None, description="검색어"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Post)
+    if q:
+        like_q = f"%{q}%"
+        query = query.filter(
+            models.Post.title.ilike(like_q)
+            | models.Post.content.ilike(like_q)
+        )
+    return query.order_by(models.Post.pk_post_id.desc()).all()
+
+
+@app.get("/api/posts/{post_id}", response_model=schemas.Post)
+def read_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
+
+@app.post("/api/posts", response_model=schemas.Post, status_code=status.HTTP_201_CREATED)
+def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
+    db_post = models.Post(**post.dict())
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+
+@app.delete("/api/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    db.delete(post)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+
 # OG 태그를 포함한 HTML을 반환하는 엔드포인트 (OpenAI 코드 / 수정 필요)
 @app.get("/share/post/{post_id}", response_class=HTMLResponse)
 def get_post_og_tags(post_id: int, db: Session = Depends(get_db)):

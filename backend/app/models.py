@@ -31,6 +31,8 @@ class Post(Base):
     fk_category_id = Column(Integer, ForeignKey("categories.pk_category_id"), nullable=False, index=True)
     title = Column(String(200), nullable=False, index=True)
     content = Column(Text, nullable=True)
+    # Post 모델에 아래 필드 추가 (예: password 다음에)
+    likes = Column(Integer, nullable=False, server_default="0")
     password = Column(Integer, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
