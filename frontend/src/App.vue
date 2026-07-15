@@ -3,6 +3,10 @@ import { RouterView } from 'vue-router'
 import HeaderNav from '@/components/HeaderNav.vue'
 import FooterSection from '@/components/FooterSection.vue'
 import FloatingMascotButton from '@/components/FloatingMascotButton.vue'
+import ChatPanel from '@/components/ChatPanel.vue'
+import { useUIStore } from '@/stores/uiStore'
+
+const ui = useUIStore()
 </script>
 
 <template>
@@ -19,7 +23,8 @@ import FloatingMascotButton from '@/components/FloatingMascotButton.vue'
     <FooterSection />
 
     <!-- Floating AI button -->
-    <FloatingMascotButton />
+    <FloatingMascotButton v-if="!ui.showChat" />
+    <ChatPanel />
   </div>
 </template>
 
