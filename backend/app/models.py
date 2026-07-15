@@ -83,3 +83,21 @@ class TourItem(Base):
     modifiedtime = Column(String(30), nullable=True)
     region = Column(String(100), nullable=True)
     contentType = Column(String(100), nullable=True)
+
+
+class Restaurant(Base):
+    __tablename__ = "restaurants"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_sn = Column(Integer, unique=True, index=True, nullable=False)
+    title = Column(String(255), nullable=False, index=True)
+    address = Column(Text, nullable=True)
+    new_address = Column(Text, nullable=True)
+    subway_info = Column(Text, nullable=True)
+    tel = Column(String(80), nullable=True)
+    homepage_url = Column(Text, nullable=True)
+    homepage_lang = Column(String(50), nullable=True)
+    represent_menu = Column(Text, nullable=True)
+    use_time = Column(Text, nullable=True)
+    post_url = Column(Text, nullable=True)
+    lang_code_id = Column(String(20), nullable=True)

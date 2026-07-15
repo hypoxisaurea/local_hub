@@ -9,6 +9,7 @@ from . import models, schemas
 from .database import SessionLocal, engine, get_db
 from .seed import seed_initial_data
 from .tour_loader import load_tour_items_separate_tables as load_tour_items
+from .tour_loader_food import load_restaurant_items
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -19,6 +20,7 @@ def on_startup():
     with SessionLocal() as db:
         seed_initial_data(db)
         load_tour_items(db)
+        load_restaurant_items(db)
 
 
 @app.get("/api/places", response_model=List[schemas.Place])
@@ -115,6 +117,23 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
+@app.get("/api/restaurants", response_model=List[schemas.Restaurant])
+def read_restaurants(
+    q: Optional[str] = Query(None, description="검색어"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Restaurant)
+    if q:
+        like_q = f"%{q}%"
+        query = query.filter(
+            models.Restaurant.title.ilike(like_q)
+            | models.Restaurant.address.ilike(like_q)
+            | models.Restaurant.new_address.ilike(like_q)
+            | models.Restaurant.represent_menu.ilike(like_q)
+            | models.Restaurant.subway_info.ilike(like_q)
+        )
+    return query.order_by(models.Restaurant.id.desc()).limit(200).all()
 
 
 # OG 태그를 포함한 HTML을 반환하는 엔드포인트 (OpenAI 코드 / 수정 필요)
