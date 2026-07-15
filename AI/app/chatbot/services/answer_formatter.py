@@ -81,6 +81,37 @@ def format_context(docs: list[dict[str, Any]]) -> str:
         lines.append(" / ".join(parts))
     return "\n".join(lines)
 
+def _friendly_general_reply(message: str, language: str | None = None) -> str | None:
+    lowered = message.strip().lower()
+    english = _wants_english(message, language)
+
+    greeting_words = {"안녕", "안녕하세요", "반가워", "반갑습니다", "hi", "hello", "hey", "ㅎㅇ"}
+    thanks_words = {"감사", "감사합니다", "고마워", "고마워요", "thanks", "thank you"}
+    goodbye_words = {"잘가", "잘 가", "bye", "바이", "그만", "종료", "exit", "quit"}
+
+    if any(word in lowered for word in greeting_words):
+        if english:
+            return "Hello! I can help with Seoul travel recommendations. Tell me a place, district, or activity you want to know about."
+        return "안녕하세요! 서울 여행 정보로 도와드릴게요. 궁금한 장소나 지역, 원하는 유형을 말해 주세요."
+
+    if any(word in lowered for word in thanks_words):
+        if english:
+            return "You’re welcome! If you need anything else, feel free to ask."
+        return "천천히 말씀해 주세요. 도움이 필요하시면 언제든지 다시 물어보세요."
+
+    if any(word in lowered for word in goodbye_words):
+        if english:
+            return "Goodbye! Hope your trip goes well."
+        return "좋은 여행 되세요! 궁금한 게 있으면 또 찾아와 주세요."
+
+    return None
+
+
+def _general_fallback_reply(message: str, language: str | None = None) -> str:
+    english = _wants_english(message, language)
+    if english:
+        return "I'm here with you. Ask me about Seoul places, neighborhoods, food, shopping, festivals, or travel routes whenever you're ready."
+    return "편하게 말씀해 주세요. 서울의 장소, 지역, 맛집, 쇼핑, 축제, 여행 코스 중 궁금한 걸 물어보시면 같이 찾아볼게요."
 
 def fallback_answer(
     message: str,
@@ -91,7 +122,14 @@ def fallback_answer(
     english = _wants_english(message, language)
     asks_for_month = _asks_for_month(message)
 
+    if route in {"general", "local_plus_general"}:
+        friendly_reply = _friendly_general_reply(message, language)
+        if friendly_reply:
+            return friendly_reply
+
     if not docs:
+        if route == "general":
+            return _general_fallback_reply(message, language)
         if route == "community":
             if english:
                 return "Community post search needs a posts database connection. The chatbot node is ready, but no DB search is connected yet."

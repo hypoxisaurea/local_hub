@@ -30,8 +30,9 @@ async def main() -> None:
         message = input("\nYou> ").strip()
         if not message:
             continue
+        
         if message.lower() in EXIT_COMMANDS:
-            print("Bye.")
+            print("안녕히 가세요! 또 봐요.")
             return
 
         try:

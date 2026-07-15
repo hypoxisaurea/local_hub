@@ -1,3 +1,6 @@
+import logging
+from typing import Any
+
 from app.chatbot.config import get_settings
 from app.chatbot.graph.routing import classify_route
 from app.chatbot.graph.state import ChatbotState
@@ -8,6 +11,27 @@ from app.chatbot.services.community_search import search_community_posts
 from app.chatbot.services.local_search import search_local_data
 from app.chatbot.services.generate_sql import execute_sql, format_db_result, generate_sql_from_text
 
+
+logger = logging.getLogger(__name__)
+
+
+def _format_history(history: list[dict[str, Any]] | None) -> str:
+    if not history:
+        return "No prior conversation."
+
+    lines: list[str] = []
+    for item in history:
+        if isinstance(item, dict):
+            role = item.get("role", "user")
+            content = item.get("content", "")
+        else:
+            role = getattr(item, "role", "user")
+            content = getattr(item, "content", "")
+        if role == "assistant":
+            lines.append(f"Assistant: {content}")
+        else:
+            lines.append(f"User: {content}")
+    return "\n".join(lines)
 
 async def classify_query(state: ChatbotState) -> ChatbotState:
     return {"route": classify_route(state["message"])}
@@ -58,13 +82,18 @@ async def generate_answer(state: ChatbotState) -> ChatbotState:
     if model is None:
         return {"answer": fallback_answer(state["message"], route, docs, state.get("language"))}
 
-    chain = answer_prompt | model
-    response = await chain.ainvoke(
-        {
-            "message": state["message"],
-            "route": route,
-            "context": format_context(docs),
-            "history": _format_history(state.get("history")),
-        }
-    )
-    return {"answer": response.content}
+    try:
+        chain = answer_prompt | model
+        response = await chain.ainvoke(
+            {
+                "message": state["message"],
+                "route": route,
+                "context": format_context(docs),
+                "history": _format_history(state.get("history")),
+            }
+        )
+        return {"answer": getattr(response, "content", str(response))}
+
+    except Exception:
+        logger.exception("Failed to generate chatbot answer with LLM")
+        return {"answer": fallback_answer(state["message"], route, docs, state.get("language"))}
