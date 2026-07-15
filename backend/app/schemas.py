@@ -52,6 +52,7 @@ class Post(PostBase):
     pk_post_id: int
     created_at: Optional[datetime]
     category: Optional[Category] = None
+    likes: int = 0
 
     class Config:
         orm_mode = True
