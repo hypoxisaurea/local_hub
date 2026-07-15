@@ -1,5 +1,5 @@
 # 백엔드에서 API 요청과 응답에 사용하는 데이터 구조를 정의하는 파일
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -18,8 +18,7 @@ class PlaceCreate(PlaceBase):
 class Place(PlaceBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # 사용자가 카테고리를 사용할 때 사용하는 정보
 class CategoryBase(BaseModel):
@@ -33,8 +32,7 @@ class CategoryCreate(CategoryBase):
 class Category(CategoryBase):
     pk_category_id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # 게시글
 class PostBase(BaseModel):
@@ -54,8 +52,15 @@ class Post(PostBase):
     category: Optional[Category] = None
     likes: int = 0
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
+# 게시글 수정
+class PostUpdate(BaseModel):
+    fk_category_id: Optional[int] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+    password: int
+
 
 # 댓글
 class CommentBase(BaseModel):
@@ -72,8 +77,7 @@ class Comment(CommentBase):
     pk_comment_id: int
     created_at: Optional[datetime]
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 # 관광지 정보 (Json 데이터 기반)
 class TourItem(BaseModel):
@@ -106,8 +110,7 @@ class TourItem(BaseModel):
     region: Optional[str] = None
     contentType: Optional[str] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class RestaurantBase(BaseModel):
@@ -132,5 +135,27 @@ class RestaurantCreate(RestaurantBase):
 class Restaurant(RestaurantBase):
     id: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
+
+# 관광지 요약 정보 (Json 데이터 기반)
+class TravelSpotSummary(BaseModel):
+    contentid: str
+    firstimage: Optional[str] = None
+    title: str
+    addr1: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MapSpot(BaseModel):
+    id: int
+    contentid: Optional[str] = None
+    category: str
+    title: str
+    addr1: Optional[str] = None
+    mapx: str
+    mapy: str
+    firstimage: Optional[str] = None
+    contentType: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
