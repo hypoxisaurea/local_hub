@@ -10,7 +10,7 @@ from ...crud import map as crud_map
 
 router = APIRouter(prefix="/api/map-spots", tags=["map_spots"])
 
-@router.get("/api/map-spots", response_model=List[schemas.MapSpot])
+@router.get("", response_model=List[schemas.MapSpot])
 def read_map_spots(
     category: str = Query("all", description="all, 관광지, 레포츠, 맛집, 문화시설, 쇼핑, 축제"),
     q: Optional[str] = Query(None, description="검색어"),
