@@ -12,6 +12,7 @@ export interface Post {
   category: string
   title: string
   content: string
+  nickname: string
   password: string
   createdAt: string
   likes: number
@@ -28,7 +29,7 @@ export const usePortalStore = defineStore('portal', () => {
       category: '여행지',
       title: '경복궁 한복 대여 꿀팁 공유 드립니다!',
       content: '주말에는 방문자가 엄청 많으니 가급적 오전 9시 개장 시간에 맞춰 가시는 걸 추천해요. 그리고 근처 대여점마다 가격은 비슷한데, 소품이나 머리 땋아주는 서비스가 포함인지 미리 물어보시면 돈을 훨씬 절약할 수 있습니다.',
-
+      nickname: '성동구여우',
       password: '1111',
       createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
       likes: 32,
@@ -46,7 +47,7 @@ export const usePortalStore = defineStore('portal', () => {
       category: '맛집',
       title: '광장시장 먹거리 추천 및 바가지 피하기 방법',
       content: '육회나 빈대떡은 가격이 정해져 있어서 안전해요! 모듬순대나 떡볶이 시키실 때는 먼저 양이랑 가격 꼭 물어보시는 것 추천합니다.',
-      
+      nickname: '남대문아재',
       password: '2222',
       createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
       likes: 45,
@@ -57,7 +58,7 @@ export const usePortalStore = defineStore('portal', () => {
       category: '카페',
       title: '성수동 힙하고 야외 테라스 예쁜 카페 3곳',
       content: '주택을 개조한 이색적인 분위기의 인더스트리얼 감성 카페들 위주로 다녀왔습니다. 대기가 다소 길 수 있으나 인생사진 건지기 좋은 스팟들이에요.',
-      
+      nickname: '커피마니아',
       password: '3333',
       createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
       likes: 28,
@@ -167,6 +168,36 @@ export const usePortalStore = defineStore('portal', () => {
     }
   }
 
+  const updatePostWithPassword = (
+    id: number,
+    password: string,
+    updates: Pick<Post, 'category' | 'nickname' | 'title' | 'content'>
+  ) => {
+    const post = posts.value.find((item) => item.id === id)
+
+    if (!post || post.password !== password) {
+      return false
+    }
+
+    Object.assign(post, updates)
+    saveToStorage()
+
+    return true
+  }
+
+  const deletePostWithPassword = (id: number, password: string) => {
+    const post = posts.value.find((item) => item.id === id)
+
+    if (!post || post.password !== password) {
+      return false
+    }
+
+    posts.value = posts.value.filter((item) => item.id !== id)
+    saveToStorage()
+
+    return true
+  }
+
   const addComment = async (postId: number, comment: Omit<Comment, 'id' | 'createdAt'>) => {
     try {
       const res = await fetch(`${API_BASE}/posts/${postId}/comments`, {
@@ -211,6 +242,8 @@ export const usePortalStore = defineStore('portal', () => {
     addPost,
     updatePost,
     deletePost,
+    updatePostWithPassword,
+    deletePostWithPassword,
     addComment
   }
 })

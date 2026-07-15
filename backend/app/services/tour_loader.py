@@ -2,7 +2,7 @@
 # json 데이터들을 각 파일별로 각각의 테이블에 넣기
 import json
 from pathlib import Path
-from typing import List
+from typing import Iterable
 
 from sqlalchemy import (
     Table,
@@ -18,10 +18,24 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from ..db.base import Base, engine
-from ..models import models
 
 def get_data_directory() -> Path:
     return Path(__file__).resolve().parents[3] / "data"
+
+TOUR_DATA_FILES = [
+    "서울_관광지.json",
+    "서울_레포츠.json",
+    "서울_문화시설.json",
+    "서울_쇼핑.json",
+    "서울_숙박.json",
+    "서울_여행코스.json",
+    "서울_축제공연행사.json",
+]
+
+TOUR_DATA_FILES_EN = [
+    filename.replace(".json", "_en.json")
+    for filename in TOUR_DATA_FILES
+]
 
 def _normalize_table_name(stem: str) -> str:
     name = stem.lower().replace(" ", "_").replace("-", "_")
@@ -68,17 +82,22 @@ def _get_or_create_table(table_name: str, metadata: MetaData, engine: Engine) ->
     metadata.create_all(engine, tables=[table])
     return table
 
+def _iter_tour_json_files(data_dir: Path) -> Iterable[Path]:
+    for filename in [*TOUR_DATA_FILES, *TOUR_DATA_FILES_EN]:
+        path = data_dir / filename
+        if path.exists():
+            yield path
+
 def load_tour_items_separate_tables(db: Session) -> int:
     """
     각 JSON 파일마다 별도 테이블을 만들고 데이터를 로드합니다.
     반환값: 삽입된 총 레코드 수
     """
     data_dir = get_data_directory()
-    json_files: List[Path] = sorted(data_dir.glob("*.json"))
     total_inserted = 0
     metadata = Base.metadata
 
-    for json_file in json_files:
+    for json_file in _iter_tour_json_files(data_dir):
         with json_file.open("r", encoding="utf-8") as f:
             payload = json.load(f)
 

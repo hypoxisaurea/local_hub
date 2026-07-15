@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/map-spots", tags=["map_spots"])
 def read_map_spots(
     category: str = Query("all", description="all, 관광지, 레포츠, 맛집, 문화시설, 쇼핑, 축제"),
     q: Optional[str] = Query(None, description="검색어"),
+    lang: str = Query("ko", pattern="^(ko|en)$", description="콘텐츠 표시 언어"),
     limit: int = Query(300, ge=1, le=1000),
 ):
     normalized = crud_map.MAP_CATEGORY_ALIASES.get(category, category)
@@ -22,11 +23,11 @@ def read_map_spots(
         per_table_limit = max(1, limit // len(crud_map.MAP_SPOT_TABLES))
         combined = []
         for label, table_name in crud_map.MAP_SPOT_TABLES.items():
-            combined.extend(crud_map._fetch_map_spot_rows(label, table_name, q=q, limit=per_table_limit))
+            combined.extend(crud_map._fetch_map_spot_rows(label, table_name, q=q, limit=per_table_limit, lang=lang))
         return combined[:limit]
 
     table_name = crud_map.MAP_SPOT_TABLES.get(normalized)
     if not table_name:
         raise HTTPException(status_code=400, detail="Unsupported map category")
 
-    return crud_map._fetch_map_spot_rows(normalized, table_name, q=q, limit=limit)
+    return crud_map._fetch_map_spot_rows(normalized, table_name, q=q, limit=limit, lang=lang)

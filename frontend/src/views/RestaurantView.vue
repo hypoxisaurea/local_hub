@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FoodListPage from '@/components/FoodListPage.vue'
 import type { LocalPlace } from '@/types/local'
@@ -22,6 +22,7 @@ import type { LocalPlace } from '@/types/local'
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
+const restaurantItems = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
@@ -29,45 +30,47 @@ const recommendedTags = computed(() =>
     : ['#KoreanFood', '#Cafe', '#SoloDining', '#Date']
 )
 
-const restaurants = computed<LocalPlace[]>(() => locale.value === 'ko'
-  ? [
-      {
-        id: 1,
-        title: '을지면옥',
-        location: '서울특별시 중구',
-        tags: ['#평양냉면', '#노포', '#한식'],
-        image: '/images/euljimyeonok.jpg',
-      },
-      {
-        id: 2,
-        title: '성수 베이커리',
-        location: '서울특별시 성동구',
-        tags: ['#베이커리', '#카페', '#데이트'],
-        image: '/images/seongsu-bakery.jpg',
-      },
-    ]
-  : [
-      {
-        id: 1,
-        title: 'Eulji Myeonok',
-        location: 'Jung-gu, Seoul',
-        tags: ['#PyongyangColdNoodles', '#OldFavorite', '#KoreanFood'],
-        image: '/images/euljimyeonok.jpg',
-      },
-      {
-        id: 2,
-        title: 'Seongsu Bakery',
-        location: 'Seongdong-gu, Seoul',
-        tags: ['#Bakery', '#Cafe', '#Date'],
-        image: '/images/seongsu-bakery.jpg',
-      },
-    ])
+interface RestaurantResponse {
+  id: number
+  title: string
+  address?: string | null
+  new_address?: string | null
+  represent_menu?: string | null
+  lang_code_id?: string | null
+}
+
+const toRestaurantPlace = (item: RestaurantResponse): LocalPlace => ({
+  id: item.id,
+  title: item.title,
+  location: item.new_address || item.address || '',
+  tags: [
+    locale.value === 'ko' ? '#맛집' : '#Restaurants',
+    ...(item.represent_menu ? item.represent_menu.split(/[,/\n]/).slice(0, 2).map((menu) => `#${menu.trim().replace(/\s+/g, '')}`) : []),
+  ],
+  image: '',
+})
+
+const fetchRestaurants = async () => {
+  const params = new URLSearchParams({ lang: locale.value })
+  if (searchQuery.value.trim()) {
+    params.set('q', searchQuery.value.trim())
+  }
+
+  const response = await fetch(`/api/restaurants?${params.toString()}`)
+  if (!response.ok) {
+    restaurantItems.value = []
+    return
+  }
+
+  const data = await response.json() as RestaurantResponse[]
+  restaurantItems.value = data.map(toRestaurantPlace)
+}
 
 const filteredRestaurants = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return restaurants.value.filter((restaurant) => {
+  return restaurantItems.value.filter((restaurant) => {
     const text = [restaurant.title, restaurant.location, ...restaurant.tags]
       .join(' ')
       .toLowerCase()
@@ -78,7 +81,7 @@ const filteredRestaurants = computed(() => {
 })
 
 function searchRestaurants() {
-  console.log(searchQuery.value)
+  fetchRestaurants()
 }
 
 function toggleTag(tag: string) {
@@ -88,5 +91,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchRestaurants()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchRestaurants()
+})
+
+onMounted(fetchRestaurants)
 </script>
