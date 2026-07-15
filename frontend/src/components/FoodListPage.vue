@@ -14,7 +14,7 @@
             @input="updateSearchQuery"
           />
 
-          <button type="submit">검색</button>
+          <button type="submit">{{ t('common.search') }}</button>
         </form>
 
         <div class="tag-list">
@@ -49,7 +49,7 @@
           </div>
 
           <div v-else class="empty-state">
-            <p>조건에 맞는 결과가 없어요.</p>
+            <p>{{ t('common.noResults') }}</p>
           </div>
         </section>
       </div>
@@ -58,7 +58,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { LocalPlace, PopularKeyword } from '@/types/local'
+
+const { t } = useI18n()
 
 defineProps<{
   title: string
@@ -67,8 +70,8 @@ defineProps<{
   selectedTag: string
   recommendedTags: string[]
   items: LocalPlace[]
-  popularKeywords: PopularKeyword[]
-  aiDescription: string
+  popularKeywords?: PopularKeyword[]
+  aiDescription?: string
 }>()
 
 const emit = defineEmits<{
@@ -172,7 +175,7 @@ function updateSearchQuery(event: Event) {
 
 .place-section {
   width: 100%;
-  max-width: 780px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -185,7 +188,7 @@ function updateSearchQuery(event: Event) {
 
 .place-card {
   width: calc((100% - 24px) / 2);
-  max-width: 378px;
+  max-width: none;
   overflow: hidden;
 }
 

@@ -20,7 +20,7 @@
           @click="openWriteForm"
         >
           <i class="fas fa-pen mr-2"></i>
-          글쓰기
+          {{ t('community.writeShort') }}
         </button>
       </div>
 
@@ -30,25 +30,25 @@
         <div class="flex flex-wrap justify-center gap-3">
           <!-- 전체보기 버튼 -->
           <button 
-            @click="portal.selectedCategory = '전체'" 
+            @click="selectCategory(ALL_CATEGORY)"
             :class="[
               'w-40 p-4 rounded-2xl flex flex-col items-center justify-center border transition-all hover:shadow-md',
-              portal.selectedCategory === '전체' 
+              portal.selectedCategory === ALL_CATEGORY 
                 ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-100' 
                 : 'bg-white text-slate-600 border-slate-100'
             ]"
           >
-            <div :class="['w-10 h-10 rounded-xl flex items-center justify-center mb-2', portal.selectedCategory === '전체' ? 'bg-rose-400 text-white' : 'bg-slate-50']">
+            <div :class="['w-10 h-10 rounded-xl flex items-center justify-center mb-2', portal.selectedCategory === ALL_CATEGORY ? 'bg-rose-400 text-white' : 'bg-slate-50']">
               <i class="fas fa-grid-2 text-lg"></i>
             </div>
-            <span class="text-xs font-bold">전체보기</span>
+            <span class="text-xs font-bold">{{ t('categories.allView') }}</span>
           </button>
 
           <!-- 카테고리 버튼들 -->
           <button 
             v-for="cat in categories" 
             :key="cat"
-            @click="portal.selectedCategory = cat"
+            @click="selectCategory(cat)"
             :class="[
               'w-40 p-4 rounded-2xl flex flex-col items-center justify-center border transition-all hover:shadow-md',
               portal.selectedCategory === cat 
@@ -66,7 +66,7 @@
             >
               <i :class="getCategoryIcon(cat)"></i>
             </div>
-            <span class="text-xs font-bold">{{ cat }}</span>
+            <span class="text-xs font-bold">{{ categoryLabel(cat) }}</span>
           </button>
         </div>
 
@@ -90,25 +90,64 @@
       <div>
         <h3 class="text-lg font-black text-slate-800 flex items-center mb-4">
           <span class="w-2 h-5 bg-rose-500 rounded-full mr-2"></span>
-          전체 게시글
+          {{ allPostsLabel }}
         </h3>
 
         <!-- Posts Grid -->
         <div v-if="portal.filteredPosts.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
           <PostCard 
-            v-for="post in portal.filteredPosts" 
+            v-for="post in paginatedPosts" 
             :key="post.id"
             :post="post"
             @click="viewPost(post)"
           />
         </div>
 
+        <!-- 페이지네이션 -->
+          <div
+            v-if="portal.filteredPosts.length > 0"
+            class="mt-10 flex items-center justify-center gap-2"
+          >
+            <button
+              type="button"
+              class="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage === 1"
+              @click="movePage(currentPage - 1)"
+            >
+              {{ t('common.previous') }}
+            </button>
+
+            <button
+              v-for="page in pageNumbers"
+              :key="page"
+              type="button"
+              class="h-10 w-10 rounded-lg border text-sm font-bold transition-colors"
+              :class="
+                currentPage === page
+                  ? 'border-rose-500 bg-rose-500 text-white'
+                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+              "
+              @click="movePage(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              type="button"
+              class="rounded-lg border px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="currentPage === totalPages"
+              @click="movePage(currentPage + 1)"
+            >
+              {{ t('common.next') }}
+            </button>
+          </div>
+
         <!-- No Posts Message -->
         <div v-else class="bg-slate-50 border border-slate-200 rounded-2xl p-16 text-center">
           <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
           <p class="text-slate-500 font-semibold">{{ emptyLabel }}</p>
           <p class="text-slate-400 text-sm mt-1">{{ emptyHint }}</p>
-          <button @click="ui.openWriteModal()" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold mt-4 transition-all shadow-md shadow-rose-100">
+          <button @click="openWriteForm" class="bg-rose-500 hover:bg-rose-600 text-white px-6 py-2.5 rounded-xl font-bold mt-4 transition-all shadow-md shadow-rose-100">
             <i class="fas fa-pen-fancy mr-2"></i>
               {{ writeLabel }}
           </button>
@@ -121,7 +160,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
         role="dialog"
         aria-modal="true"
-        aria-label="게시글 상세 보기"
+        :aria-label="t('community.detailLabel')"
         @click.self="closePostModal"
       >
         <article
@@ -131,7 +170,7 @@
           <header class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
             <div class="flex items-center gap-3">
               <span class="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-bold text-rose-600">
-                {{ selectedPost.category }}
+                {{ categoryLabel(selectedPost.category) }}
               </span>
 
               <span class="text-xs text-slate-400">
@@ -145,7 +184,7 @@
               @click="requestEdit(selectedPost)"
             >
               <i class="fas fa-pen mr-1"></i>
-              수정
+              {{ t('common.edit') }}
             </button>
 
             <button
@@ -154,13 +193,13 @@
               @click="requestDelete(selectedPost)"
             >
               <i class="fas fa-trash-can mr-1"></i>
-              삭제
+              {{ t('common.delete') }}
             </button>
 
             <button
               type="button"
               class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
-              aria-label="게시글 상세 모달 닫기"
+              :aria-label="t('community.closeDetailLabel')"
               @click="closePostModal"
             >
               <i class="fas fa-xmark text-lg"></i>
@@ -190,7 +229,7 @@
               class="rounded-xl bg-slate-800 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-slate-700"
               @click="closePostModal"
             >
-              닫기
+              {{ t('common.close') }}
             </button>
           </footer>
         </article>
@@ -208,16 +247,16 @@
         >
           <header class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
             <div>
-              <h2 class="text-xl font-black text-slate-900">새 게시글 작성</h2>
+              <h2 class="text-xl font-black text-slate-900">{{ editingPost ? t('community.formEditTitle') : t('community.formTitle') }}</h2>
               <p class="mt-1 text-sm text-slate-500">
-                수정 시 사용할 비밀번호를 설정해주세요.
+                {{ t('community.formHint') }}
               </p>
             </div>
 
             <button
               type="button"
               class="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100"
-              aria-label="글쓰기 모달 닫기"
+              :aria-label="t('community.closeDetailLabel')"
               @click="closePostForm"
             >
               <i class="fas fa-xmark text-lg"></i>
@@ -227,57 +266,57 @@
           <div class="space-y-4 px-6 py-6">
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label class="space-y-1.5">
-                <span class="text-sm font-bold text-slate-700">카테고리</span>
+                <span class="text-sm font-bold text-slate-700">{{ t('community.category') }}</span>
                 <select
                   v-model="postForm.category"
                   class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-rose-400"
                 >
                   <option v-for="category in categories" :key="category" :value="category">
-                    {{ category }}
+                    {{ categoryLabel(category) }}
                   </option>
                 </select>
               </label>
 
               <label class="space-y-1.5">
-                <span class="text-sm font-bold text-slate-700">닉네임</span>
+                <span class="text-sm font-bold text-slate-700">{{ t('community.nickname') }}</span>
                 <input
                   v-model="postForm.nickname"
                   type="text"
                   maxlength="20"
-                  placeholder="표시할 닉네임"
+                  :placeholder="t('community.nicknamePlaceholder')"
                   class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-rose-400"
                 >
               </label>
             </div>
 
             <label class="block space-y-1.5">
-              <span class="text-sm font-bold text-slate-700">제목</span>
+              <span class="text-sm font-bold text-slate-700">{{ t('community.postTitle') }}</span>
               <input
                 v-model="postForm.title"
                 type="text"
                 maxlength="100"
-                placeholder="제목을 입력하세요"
+                :placeholder="t('community.titlePlaceholder')"
                 class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-rose-400"
               >
             </label>
 
             <label class="block space-y-1.5">
-              <span class="text-sm font-bold text-slate-700">내용</span>
+              <span class="text-sm font-bold text-slate-700">{{ t('community.content') }}</span>
               <textarea
                 v-model="postForm.content"
                 rows="8"
-                placeholder="로컬 정보를 자유롭게 공유해주세요."
+                :placeholder="t('community.contentPlaceholder')"
                 class="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm leading-6 outline-none focus:border-rose-400"
               ></textarea>
             </label>
 
             <label class="block space-y-1.5">
-              <span class="text-sm font-bold text-slate-700">수정 비밀번호</span>
+              <span class="text-sm font-bold text-slate-700">{{ t('community.password') }}</span>
               <input
                 v-model="postForm.password"
                 type="password"
                 maxlength="30"
-                placeholder="게시글 수정 시 사용할 비밀번호"
+                :placeholder="t('community.passwordPlaceholder')"
                 class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-rose-400"
               >
             </label>
@@ -289,14 +328,14 @@
               class="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-200"
               @click="closePostForm"
             >
-              취소
+              {{ t('common.cancel') }}
             </button>
 
             <button
               type="submit"
               class="rounded-xl bg-rose-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-rose-100 hover:bg-rose-600"
             >
-              등록하기
+              {{ t('common.submit') }}
             </button>
           </footer>
         </form>
@@ -313,17 +352,16 @@
           @submit.prevent="verifyPostPassword"
         >
           <h2 class="text-lg font-black text-slate-900">
-            {{ passwordAction === 'delete' ? '게시글 삭제' : '비밀번호 확인' }}
+            {{ passwordAction === 'delete' ? t('community.deleteTitle') : t('community.passwordCheckTitle') }}
           </h2>
 
           <p class="mt-2 text-sm leading-6 text-slate-500">
             <template v-if="passwordAction === 'delete'">
-              게시글을 삭제하려면 작성 시 설정한 비밀번호를 입력해주세요.
-              삭제한 게시글은 복구할 수 없습니다.
+              {{ t('community.deleteDescription') }}
             </template>
 
             <template v-else>
-              게시글을 수정하려면 작성 시 설정한 비밀번호를 입력해주세요.
+              {{ t('community.editDescription') }}
             </template>
           </p>
 
@@ -331,7 +369,7 @@
             v-model="editPassword"
             type="password"
             autofocus
-            placeholder="비밀번호 입력"
+            :placeholder="t('community.passwordInputPlaceholder')"
             class="mt-5 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-rose-400"
           >
 
@@ -341,7 +379,7 @@
               class="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100"
               @click="showPasswordModal = false"
             >
-              취소
+              {{ t('common.cancel') }}
             </button>
 
             <button
@@ -353,7 +391,7 @@
                   : 'bg-rose-500 hover:bg-rose-600'
               ]"
             >
-              {{ passwordAction === 'delete' ? '삭제하기' : '확인' }}
+              {{ passwordAction === 'delete' ? t('community.deleteSubmit') : t('common.confirm') }}
             </button>
           </div>
         </form>
@@ -364,6 +402,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePortalStore } from '@/stores/portalStore'
 import { useUIStore } from '@/stores/uiStore'
 import type { Post } from '@/stores/portalStore'
@@ -371,28 +410,29 @@ import PostCard from '@/components/PostCard.vue'
 
 const portal = usePortalStore()
 const ui = useUIStore()
+const { locale, t } = useI18n()
 
 const searchQuery = ref('')
+const ALL_CATEGORY = '전체'
 
 
-const pageTitle = computed(() => ui.currentLang === 'ko' ? '커뮤니티' : 'Community')
-const pageSubtitle = computed(() =>
-  ui.currentLang === 'ko' ? '지역 커뮤니티와 소통하세요' : 'Connect with your local community'
-)
-const searchPlaceholder = computed(() =>
-  ui.currentLang === 'ko' ? '게시글 검색...' : 'Search posts...'
-)
-const searchLabel = computed(() => ui.currentLang === 'ko' ? '검색' : 'Search')
-const allPostsLabel = computed(() => ui.currentLang === 'ko' ? '전체 게시글' : 'All posts')
-const writeLabel = computed(() => ui.currentLang === 'ko' ? '글 작성하기' : 'Write a post')
-const emptyLabel = computed(() => ui.currentLang === 'ko' ? '게시글이 없습니다.' : 'No posts yet.')
+const pageTitle = computed(() => t('community.title'))
+const pageSubtitle = computed(() => t('community.subtitle'))
+const searchPlaceholder = computed(() => t('community.searchPlaceholder'))
+const searchLabel = computed(() => t('common.search'))
+const allPostsLabel = computed(() => t('community.allPosts'))
+const writeLabel = computed(() => t('community.write'))
+const emptyLabel = computed(() => t('community.empty'))
+const emptyHint = computed(() => t('community.emptyHint'))
 const passwordAction = ref<'edit' | 'delete'>('edit')
 
 // 검색 실행
 const runSearch = () => {
   portal.searchQuery = searchQuery.value
+  currentPage.value = 1 // 검색하면 첫 페이지부터 표시
+
   if (searchQuery.value.trim()) {
-    ui.showToast(`"${searchQuery.value}" 검색이 적용되었습니다.`)
+    ui.showToast(t('toast.searchApplied', { query: searchQuery.value }))
   }
 }
 const showPostForm = ref(false)
@@ -433,7 +473,7 @@ const submitPostForm = () => {
   const { category, nickname, title, content, password } = postForm.value
 
   if (!nickname.trim() || !title.trim() || !content.trim()) {
-    ui.showToast('카테고리, 닉네임, 제목, 내용을 모두 입력해주세요.')
+    ui.showToast(t('toast.requiredPostFields'))
     return
   }
 
@@ -451,7 +491,7 @@ const submitPostForm = () => {
     )
 
     if (!updated) {
-      ui.showToast('비밀번호가 일치하지 않습니다.')
+      ui.showToast(t('toast.passwordMismatch'))
       return
     }
 
@@ -467,13 +507,13 @@ const submitPostForm = () => {
 
     editingPost.value = null
     closePostForm()
-    ui.showToast('게시글이 수정되었습니다.')
+    ui.showToast(t('toast.postUpdated'))
     return
   }
 
   // 새 게시글 작성
   if (!password.trim()) {
-    ui.showToast('수정에 사용할 비밀번호를 입력해주세요.')
+    ui.showToast(t('toast.passwordRequired'))
     return
   }
 
@@ -486,13 +526,25 @@ const submitPostForm = () => {
   })
 
   closePostForm()
-  ui.showToast('게시글이 등록되었습니다.')
+  ui.showToast(t('toast.postCreated'))
 }
 
 const selectedPost = ref<Post | null>(null)
 
 // 카테고리 아이콘 반환
 const categories = ['여행지', '맛집', '축제']
+
+const categoryLabel = (category: string) => {
+  const labels: Record<string, string> = {
+    전체: t('categories.all'),
+    여행지: t('categories.travel'),
+    맛집: t('categories.restaurant'),
+    축제: t('categories.festival'),
+    카페: t('categories.cafe'),
+  }
+
+  return labels[category] ?? category
+}
 
 const getCategoryIcon = (cat: string): string => {
   const icons: Record<string, string> = {
@@ -527,7 +579,7 @@ const requestDelete = (post: Post) => {
 }
 
 const formatPostDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString('ko-KR', {
+  return new Date(dateString).toLocaleString(locale.value === 'ko' ? 'ko-KR' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -535,11 +587,39 @@ const formatPostDate = (dateString: string) => {
     minute: '2-digit',
   })
 }
+
+const selectCategory = (category: string) => {
+  portal.selectedCategory = category
+  currentPage.value = 1
+}
+
+const POSTS_PER_PAGE = 6 // 한 페이지에 보일 게시글 수
+const currentPage = ref(1)
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(portal.filteredPosts.length / POSTS_PER_PAGE))
+})
+
+const paginatedPosts = computed(() => {
+  const start = (currentPage.value - 1) * POSTS_PER_PAGE
+  const end = start + POSTS_PER_PAGE
+
+  return portal.filteredPosts.slice(start, end)
+})
+
+const pageNumbers = computed(() => {
+  return Array.from({ length: totalPages.value }, (_, index) => index + 1)
+})
+
+const movePage = (page: number) => {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
+}
+
 const verifyPostPassword = () => {
   if (!editingPost.value) return
 
   if (editingPost.value.password !== editPassword.value) {
-    ui.showToast('비밀번호가 일치하지 않습니다.')
+    ui.showToast(t('toast.passwordMismatch'))
     return
   }
 
@@ -551,14 +631,14 @@ const verifyPostPassword = () => {
     )
 
     if (!deleted) {
-      ui.showToast('게시글 삭제에 실패했습니다.')
+      ui.showToast(t('toast.postDeleteFailed'))
       return
     }
 
     selectedPost.value = null
     editingPost.value = null
     showPasswordModal.value = false
-    ui.showToast('게시글이 삭제되었습니다.')
+    ui.showToast(t('toast.postDeleted'))
     return
   }
 

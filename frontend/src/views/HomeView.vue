@@ -19,14 +19,14 @@
         <div class="lg:col-span-7 space-y-6">
           <!-- Main Title (텍스트색 변경) -->
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 leading-loose">
-            서울, 우리끼리 <br class="hidden sm:inline">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-pink-300 leading-normal">로컬 정보 공유해요!</span>
+            {{ t('home.titlePrefix') }} <br class="hidden sm:inline">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-300 to-pink-300 leading-normal">{{ t('home.titleHighlight') }}</span>
           </h1>
           
           <!-- Description (텍스트색 변경) -->
           <p class="text-slate-700 text-sm sm:text-base max-w-xl font-medium leading-relaxed">
-            여행자들의 생생한 리뷰와 꿀팁을 한 곳에서 만나보세요 <br>
-            익명으로 자유롭게 소통하는 프리미엄 커뮤니티 공간입니다
+            {{ t('home.subtitleLine1') }} <br>
+            {{ t('home.subtitleLine2') }}
           </p>
 
           <!-- Hero Search Bar -->
@@ -36,21 +36,25 @@
               v-model="searchQuery" 
               @keyup.enter="runSearch"
               type="text" 
-              placeholder="어디를 찾고 있나요? (예: 을지로, 맛집, 성수동)" 
+              :placeholder="t('home.searchPlaceholder')" 
               class="flex-1 bg-transparent border-none text-sm text-slate-800 placeholder-slate-400 focus:outline-none"
             >
             <button @click="runSearch" class="bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-rose-100 transition-all">
-              검색
+              {{ t('common.search') }}
             </button>
           </div>
 
           <!-- Trending Hashtags -->
           <div class="flex flex-wrap gap-2 pt-2 text-xs">
-            <span class="text-slate-900 font-semibold self-center">추천 검색어:</span>
-            <button @click="applyTag('#명동 카페')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#명동 카페</button>
-            <button @click="applyTag('#남산 야경')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#남산 야경</button>
-            <button @click="applyTag('#을지로 핫플')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#을지로 핫플</button>
-            <button @click="applyTag('#실시간 혼잡도')" class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm">#실시간 혼잡도</button>
+            <span class="text-slate-900 font-semibold self-center">{{ t('home.recommendedSearches') }}</span>
+            <button
+              v-for="tag in homeTags"
+              :key="tag"
+              @click="applyTag(tag)"
+              class="bg-slate-100 hover:bg-slate-200 text-slate-900 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-full font-medium shadow-sm transition-all backdrop-blur-sm"
+            >
+              {{ tag }}
+            </button>
           </div>
         </div>
       </div>
@@ -67,7 +71,7 @@
           <div class="absolute left-4 right-4 top-4 z-[400] flex flex-col gap-3 sm:left-6 sm:right-6 sm:flex-row sm:items-center sm:justify-between">
             <div class="rounded-2xl border border-white/70 bg-white/90 px-5 py-4 shadow-lg shadow-slate-900/10 backdrop-blur-md">
               <p class="text-xs font-bold uppercase tracking-wide text-rose-500">Seoul Travel Map</p>
-              <h3 class="mt-1 text-xl font-extrabold text-slate-800">서울 여행 지도</h3>
+              <h3 class="mt-1 text-xl font-extrabold text-slate-800">{{ t('home.mapTitle') }}</h3>
               <p class="mt-1 text-sm text-slate-500">
                 {{ mapStatusText }}
               </p>
@@ -98,9 +102,9 @@
         <!-- Weather Widget -->
         <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
           <h4 class="font-bold text-slate-800 mb-3 flex items-center">
-            <i class="fas fa-cloud-sun text-yellow-500 mr-2"></i> 오늘의 날씨
+            <i class="fas fa-cloud-sun text-yellow-500 mr-2"></i> {{ t('home.weatherTitle') }}
           </h4>
-          <p class="text-slate-500 text-sm">서울 중구 / 맑음 · 26°C</p>
+          <p class="text-slate-500 text-sm">{{ t('home.weatherText') }}</p>
         </div>
 
         <!-- Chatbot Card -->
@@ -109,22 +113,22 @@
             <h4 class="font-bold">LocalHub AI</h4>
             <i class="fas fa-robot text-xl"></i>
           </div>
-          <p class="text-sm text-rose-50">여행 계획 도와드려요! 클릭해서 시작하세요.</p>
+          <p class="text-sm text-rose-50">{{ t('home.chatbot') }}</p>
         </div>
 
         <!-- Notices Widget -->
         <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
           <h4 class="font-bold text-slate-800 mb-3 flex items-center">
-            <i class="fas fa-bullhorn text-blue-500 mr-2"></i> 공지사항
+            <i class="fas fa-bullhorn text-blue-500 mr-2"></i> {{ t('home.noticesTitle') }}
           </h4>
           <ul class="space-y-2">
             <li class="text-xs text-slate-600 pb-2 border-b border-slate-100">
-              <span class="font-semibold text-slate-800">커뮤니티 이용규칙 안내</span>
-              <p class="text-slate-400 mt-1">7월 14일</p>
+              <span class="font-semibold text-slate-800">{{ t('home.noticeRule') }}</span>
+              <p class="text-slate-400 mt-1">{{ t('home.noticeRuleDate') }}</p>
             </li>
             <li class="text-xs text-slate-600">
-              <span class="font-semibold text-slate-800">서버 점검 예정</span>
-              <p class="text-slate-400 mt-1">7월 20일 02:00~04:00</p>
+              <span class="font-semibold text-slate-800">{{ t('home.noticeMaintenance') }}</span>
+              <p class="text-slate-400 mt-1">{{ t('home.noticeMaintenanceDate') }}</p>
             </li>
           </ul>
         </div>
@@ -135,7 +139,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { usePortalStore } from '@/stores/portalStore'
@@ -143,6 +147,7 @@ import { useUIStore } from '@/stores/uiStore'
 
 const portal = usePortalStore()
 const ui = useUIStore()
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const mapContainer = ref<HTMLDivElement | null>(null)
@@ -161,15 +166,15 @@ interface MapSpot {
   contentType?: string | null
 }
 
-const mapCategories = [
-  { label: 'all', value: 'all' },
-  { label: '관광지', value: '관광지' },
-  { label: '레포츠', value: '레포츠' },
-  { label: '맛집', value: '맛집' },
-  { label: '문화시설', value: '문화시설' },
-  { label: '쇼핑', value: '쇼핑' },
-  { label: '축제', value: '축제' },
-]
+const mapCategories = computed(() => [
+  { label: t('categories.all'), value: 'all' },
+  { label: t('categories.travel'), value: '관광지' },
+  { label: t('categories.leports'), value: '레포츠' },
+  { label: t('categories.restaurant'), value: '맛집' },
+  { label: t('categories.culture'), value: '문화시설' },
+  { label: t('categories.shopping'), value: '쇼핑' },
+  { label: t('categories.festival'), value: '축제' },
+])
 
 const selectedMapCategory = ref('all')
 const mapSpots = ref<MapSpot[]>([])
@@ -181,41 +186,23 @@ const seoulBounds = L.latLngBounds(
 )
 
 const mapStatusText = computed(() => {
-  if (isMapLoading.value) return 'DB에서 지도 데이터를 불러오는 중입니다.'
+  if (isMapLoading.value) return t('home.mapLoading')
   if (mapError.value) return mapError.value
-  const categoryLabel = selectedMapCategory.value === 'all' ? '전체' : selectedMapCategory.value
-  return `${categoryLabel} ${mapSpots.value.length}곳을 지도에 표시 중입니다.`
+  const categoryLabel = mapCategories.value.find((category) => category.value === selectedMapCategory.value)?.label ?? t('categories.all')
+  return t('home.mapStatus', { category: categoryLabel, count: mapSpots.value.length })
 })
 
-const title = computed(() =>
-  ui.currentLang === 'ko'
-    ? '서울, 우리끼리 로컬 정보 공유해요!'
-    : 'Share local Seoul tips together!'
-)
-
-const subtitle = computed(() =>
-  ui.currentLang === 'ko'
-    ? '여행자들의 생생한 리뷰와 꿀팁을 한 곳에서 만나보세요.'
-    : 'Discover real traveler reviews and hidden gems in one place.'
-)
-
-const placeholder = computed(() =>
-  ui.currentLang === 'ko'
-    ? '어디를 찾고 있나요? (예: 을지로, 맛집, 성수동)'
-    : 'Where are you looking for? (e.g. Euljiro, food, Seongsu)'
-)
-
-const searchLabel = computed(() => ui.currentLang === 'ko' ? '검색' : 'Search')
-const chatbotText = computed(() =>
-  ui.currentLang === 'ko'
-    ? '여행 계획 도와드려요! 클릭해서 시작하세요.'
-    : 'Need help planning your trip? Click to start.'
-)
+const homeTags = computed(() => [
+  t('home.tags.0'),
+  t('home.tags.1'),
+  t('home.tags.2'),
+  t('home.tags.3'),
+])
 
 const runSearch = () => {
   portal.searchQuery = searchQuery.value
   if (searchQuery.value.trim()) {
-    ui.showToast(`"${searchQuery.value}" 검색이 적용되었습니다.`)
+    ui.showToast(t('toast.searchApplied', { query: searchQuery.value }))
   }
 }
 
@@ -294,7 +281,7 @@ const escapeHtml = (value: string | null | undefined) =>
       "'": '&#039;',
     }
 
-    return entities[char]
+    return entities[char] ?? char
   })
 
 const renderMapSpots = () => {
@@ -347,14 +334,14 @@ const fetchMapSpots = async () => {
     }
 
     const response = await fetch(`/api/map-spots?${params.toString()}`)
-    if (!response.ok) throw new Error('지도 데이터를 불러오지 못했습니다.')
+    if (!response.ok) throw new Error(t('home.mapError'))
 
     mapSpots.value = await response.json()
     renderMapSpots()
   } catch (error) {
     mapSpots.value = []
     renderMapSpots()
-    mapError.value = error instanceof Error ? error.message : '지도 데이터를 불러오지 못했습니다.'
+    mapError.value = error instanceof Error ? error.message : t('home.mapError')
   } finally {
     isMapLoading.value = false
   }

@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useUIStore } from '@/stores/uiStore'
 
 const ui = useUIStore()
+const { locale, t } = useI18n()
 const draft = ref('')
 const messagesRef = ref<HTMLElement | null>(null)
 
-const quickPrompts = [
-  '서울 인기 관광지 추천해줘',
-  '홍대 근처 맛집 알려줘',
-  '이번 주 축제 있어?',
-  '영어로 도와줘'
-]
+const quickPrompts = computed(() => [
+  t('chat.prompts.0'),
+  t('chat.prompts.1'),
+  t('chat.prompts.2'),
+  t('chat.prompts.3'),
+])
 
 const isOpen = computed(() => ui.showChat)
 
@@ -24,7 +26,7 @@ const scrollToBottom = async () => {
 }
 
 const formatTime = (value: string) => {
-  return new Intl.DateTimeFormat('ko-KR', {
+  return new Intl.DateTimeFormat(locale.value === 'ko' ? 'ko-KR' : 'en-US', {
     hour: '2-digit',
     minute: '2-digit'
   }).format(new Date(value))
@@ -73,10 +75,10 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="chat-panel__actions">
-          <button type="button" aria-label="대화 초기화" title="대화 초기화" @click="ui.clearChatHistory()">
+          <button type="button" :aria-label="t('chat.reset')" :title="t('chat.reset')" @click="ui.clearChatHistory()">
             <i class="fas fa-rotate-right" aria-hidden="true"></i>
           </button>
-          <button type="button" aria-label="채팅 닫기" title="닫기" @click="ui.closeChat()">
+          <button type="button" :aria-label="t('chat.close')" :title="t('common.close')" @click="ui.closeChat()">
             <i class="fas fa-xmark" aria-hidden="true"></i>
           </button>
         </div>
@@ -103,7 +105,7 @@ onBeforeUnmount(() => {
 
         <article v-if="ui.isTyping" class="chat-panel__message-row chat-panel__message-row--assistant">
           <img src="/assets/floating_button.png" alt="" class="chat-panel__message-avatar">
-          <div class="chat-panel__bubble chat-panel__bubble--typing" aria-label="답변 작성 중">
+          <div class="chat-panel__bubble chat-panel__bubble--typing" :aria-label="t('chat.typing')">
             <span></span>
             <span></span>
             <span></span>
@@ -111,7 +113,7 @@ onBeforeUnmount(() => {
         </article>
       </div>
 
-      <div class="chat-panel__quick-prompts" aria-label="빠른 질문">
+      <div class="chat-panel__quick-prompts" :aria-label="t('chat.quickLabel')">
         <button
           v-for="prompt in quickPrompts"
           :key="prompt"
@@ -126,18 +128,18 @@ onBeforeUnmount(() => {
         <input
           v-model="draft"
           type="text"
-          placeholder="Type your message..."
+          :placeholder="t('chat.placeholder')"
           autocomplete="off"
           :disabled="ui.isTyping"
         >
-        <button type="submit" aria-label="메시지 보내기" :disabled="!draft.trim() || ui.isTyping">
+        <button type="submit" :aria-label="t('chat.send')" :disabled="!draft.trim() || ui.isTyping">
           <i class="fas fa-paper-plane" aria-hidden="true"></i>
         </button>
       </form>
 
       <p class="chat-panel__hint">
         <i class="fas fa-lock" aria-hidden="true"></i>
-        Your conversation is saved during this session.
+        {{ t('chat.hint') }}
       </p>
     </section>
   </Transition>

@@ -14,7 +14,7 @@
             @input="updateSearchQuery"
           />
 
-          <button type="submit">검색</button>
+          <button type="submit">{{ t('common.search') }}</button>
         </form>
 
         <div class="tag-list">
@@ -50,7 +50,7 @@
           </div>
 
           <div v-else class="empty-state">
-            <p>조건에 맞는 결과가 없어요.</p>
+            <p>{{ t('common.noResults') }}</p>
           </div>
         </section>
       </div>
@@ -59,7 +59,10 @@
 </template>
 
 <script setup lang="ts">
-import type { LocalPlace, PopularKeyword } from '@/types/local'
+import { useI18n } from 'vue-i18n'
+import type { LocalPlace } from '@/types/local'
+
+const { t } = useI18n()
 
 defineProps<{
   title: string
@@ -68,7 +71,7 @@ defineProps<{
   selectedTag: string
   recommendedTags: string[]
   items: LocalPlace[]
-  aiDescription: string
+  aiDescription?: string
 }>()
 
 const emit = defineEmits<{
@@ -171,28 +174,26 @@ function updateSearchQuery(event: Event) {
 
 .place-section {
   width: 100%;
-  max-width: 780px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
 .place-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .place-card {
-  width: calc((100% - 24px) / 2);
-  max-width: 378px;
+  width: auto;
+  max-width: none;
   overflow: hidden;
 }
 
 .place-image {
-  display: block;
   width: 100%;
-  height: 190px;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 1 / 1;
   background: #f1f3f6;
 }
 
@@ -247,6 +248,19 @@ function updateSearchQuery(event: Event) {
 
   .sidebar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .place-grid {
+    grid-template-columns: repeat(3, 180px);
+  }
+}
+
+@media (max-width: 650px) {
+  .place-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
