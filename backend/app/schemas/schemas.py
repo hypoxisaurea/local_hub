@@ -152,3 +152,18 @@ class TravelSpotSummary(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class MapSpot(BaseModel):
+    id: int
+    contentid: Optional[str] = None
+    category: str
+    title: str
+    addr1: Optional[str] = None
+    mapx: str
+    mapy: str
+    firstimage: Optional[str] = None
+    contentType: Optional[str] = None
+
+    class Config:
+        orm_mode = True

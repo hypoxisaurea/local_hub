@@ -168,6 +168,36 @@ TRAVEL_SPOT_TABLES = {
     "festivals": "tour_서울_축제공연행사",
 }
 
+MAP_SPOT_TABLES = {
+    "관광지": "tour_서울_관광지",
+    "레포츠": "tour_서울_레포츠",
+    "맛집": "tour_서울_음식점",
+    "문화시설": "tour_서울_문화시설",
+    "쇼핑": "tour_서울_쇼핑",
+    "축제": "tour_서울_축제공연행사",
+}
+
+MAP_CATEGORY_ALIASES = {
+    "all": "all",
+    "전체": "all",
+    "관광": "관광지",
+    "관광지": "관광지",
+    "attractions": "관광지",
+    "레포츠": "레포츠",
+    "sports": "레포츠",
+    "맛집": "맛집",
+    "음식점": "맛집",
+    "restaurants": "맛집",
+    "food": "맛집",
+    "문화시설": "문화시설",
+    "culture": "문화시설",
+    "쇼핑": "쇼핑",
+    "shopping": "쇼핑",
+    "축제": "축제",
+    "축제공연행사": "축제",
+    "festivals": "축제",
+}
+
 
 def _fetch_travel_spot_rows(table_name: str, q: Optional[str] = None, limit: int = 200) -> List[dict]:
     if not inspect(engine).has_table(table_name):
@@ -187,6 +217,70 @@ def _fetch_travel_spot_rows(table_name: str, q: Optional[str] = None, limit: int
         ]
 
     return items[:limit]
+
+
+def _fetch_map_spot_rows(category: str, table_name: str, q: Optional[str] = None, limit: int = 300) -> List[dict]:
+    if not inspect(engine).has_table(table_name):
+        return []
+
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(
+                f'''
+                SELECT id, contentid, title, addr1, mapx, mapy, firstimage, contentType
+                FROM "{table_name}"
+                WHERE mapx IS NOT NULL
+                  AND mapy IS NOT NULL
+                  AND TRIM(mapx) != ''
+                  AND TRIM(mapy) != ''
+                ORDER BY id DESC
+                LIMIT :limit
+                '''
+            ),
+            {"limit": limit},
+        ).mappings().all()
+        items = [dict(row) for row in rows]
+
+    if q:
+        like_q = q.lower()
+        items = [
+            item for item in items
+            if like_q in (item.get("title") or "").lower()
+            or like_q in (item.get("addr1") or "").lower()
+            or like_q in (item.get("contentType") or "").lower()
+        ]
+
+    return [
+        {
+            **item,
+            "category": category,
+            "mapx": str(item.get("mapx") or ""),
+            "mapy": str(item.get("mapy") or ""),
+        }
+        for item in items
+    ]
+
+
+@app.get("/api/map-spots", response_model=List[schemas.MapSpot])
+def read_map_spots(
+    category: str = Query("all", description="all, 관광지, 레포츠, 맛집, 문화시설, 쇼핑, 축제"),
+    q: Optional[str] = Query(None, description="검색어"),
+    limit: int = Query(300, ge=1, le=1000),
+):
+    normalized = MAP_CATEGORY_ALIASES.get(category, category)
+
+    if normalized == "all":
+        per_table_limit = max(1, limit // len(MAP_SPOT_TABLES))
+        combined = []
+        for label, table_name in MAP_SPOT_TABLES.items():
+            combined.extend(_fetch_map_spot_rows(label, table_name, q=q, limit=per_table_limit))
+        return combined[:limit]
+
+    table_name = MAP_SPOT_TABLES.get(normalized)
+    if not table_name:
+        raise HTTPException(status_code=400, detail="Unsupported map category")
+
+    return _fetch_map_spot_rows(normalized, table_name, q=q, limit=limit)
 
 @app.get("/api/travel-spots/attractions", response_model=List[schemas.TourItem])
 def read_travel_spots_attractions(
