@@ -8,12 +8,9 @@
     <nav
       class="relative flex items-center justify-between px-4 py-4 mx-auto max-w-7xl lg:px-8"
     >
-      <RouterLink to="/" class="flex items-center group">
-        <img
-          src="/logos/localhub-logo.svg"
-          alt="LocalHub"
-          class="w-auto h-11"
-        />
+      <RouterLink to="/" class="flex items-center space-x-2 group">
+        <img src="/logos/logo.png" alt="LocalHub Logo" class="w-auto h-10" />
+        <span class="text-2xl font-black text-slate-900"> LocalHub </span>
       </RouterLink>
 
       <nav class="items-center hidden space-x-8 md:flex">
