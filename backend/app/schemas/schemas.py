@@ -57,6 +57,14 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
+# 게시글 수정
+class PostUpdate(BaseModel):
+    fk_category_id: Optional[int] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+    password: int
+
+
 # 댓글
 class CommentBase(BaseModel):
     fk_post_id: int

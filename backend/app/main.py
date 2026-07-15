@@ -77,7 +77,7 @@ def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):
 def health_check():
     return {"status": "ok"}
 
-
+# 게시물 전체 조회 API (검색어 가능 ex./api/posts?q=한강)
 @app.get("/api/posts", response_model=List[schemas.Post])
 def read_posts(
     q: Optional[str] = Query(None, description="검색어"),
@@ -92,7 +92,7 @@ def read_posts(
         )
     return query.order_by(models.Post.pk_post_id.desc()).all()
 
-
+# 게시물 상세 조회 API
 @app.get("/api/posts/{post_id}", response_model=schemas.Post)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
@@ -100,7 +100,7 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-
+# 게시물 생성 API
 @app.post("/api/posts", response_model=schemas.Post, status_code=status.HTTP_201_CREATED)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     db_post = models.Post(**post.dict())
@@ -109,7 +109,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     db.refresh(db_post)
     return db_post
 
-
+# 게시물 삭제 API
 @app.delete("/api/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
@@ -119,6 +119,27 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db.delete(post)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+# 게시물 수정 API
+@app.put("/api/posts/{post_id}", response_model=schemas.Post)
+def update_post(post_id: int, post: schemas.PostUpdate, db: Session = Depends(get_db)):
+    db_post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if db_post.password != post.password:
+        raise HTTPException(status_code=403, detail="Incorrect password")
+
+    if post.fk_category_id is not None:
+        db_post.fk_category_id = post.fk_category_id
+    if post.title is not None:
+        db_post.title = post.title
+    if post.content is not None:
+        db_post.content = post.content
+
+    db.commit()
+    db.refresh(db_post)
+    return db_post
 
 
 @app.get("/api/restaurants", response_model=List[schemas.Restaurant])
