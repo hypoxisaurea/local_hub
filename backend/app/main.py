@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .db.base import Base, engine, SessionLocal
 from .services.seed import seed_initial_data
 from .services.tour_loader import load_tour_items_separate_tables as load_tour_items
@@ -8,6 +9,18 @@ from .services.restaurant_loader import load_restaurant_en_items, load_restauran
 from .api.routers import places, posts, restaurants, travel_spots, map
 
 app = FastAPI(title="LocalHub API", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/api/health")
 def read_health():

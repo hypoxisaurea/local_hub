@@ -12,72 +12,76 @@ export interface Post {
   category: string
   title: string
   content: string
-  nickname: string
-  password: string
+  password: string | number
   createdAt: string
   likes: number
   comments: Comment[]
+  nickname: string
 }
 
-// 여기 앞쪽에 .env 파일에서 API_BASE를 가져오는게 실패함
+export interface PostInput {
+  category: string
+  nickname: string
+  title: string
+  content: string
+  password: string | number
+}
+
 const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:8000/api'
 
-export const usePortalStore = defineStore('portal', () => {
-  const defaultPosts: Post[] = [
-    {
-      id: 1,
-      category: '여행지',
-      title: '경복궁 한복 대여 꿀팁 공유 드립니다!',
-      content: '주말에는 방문자가 엄청 많으니 가급적 오전 9시 개장 시간에 맞춰 가시는 걸 추천해요. 그리고 근처 대여점마다 가격은 비슷한데, 소품이나 머리 땋아주는 서비스가 포함인지 미리 물어보시면 돈을 훨씬 절약할 수 있습니다.',
-      nickname: '성동구여우',
-      password: '1111',
-      createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      likes: 32,
-      comments: [
-        {
-          id: 1,
-          
-          content: '좋은 팁이네요! 내일 모레 가는데 참고하겠습니다.',
-          createdAt: new Date(Date.now() - 3600000).toISOString()
-        }
-      ]
-    },
-    {
-      id: 2,
-      category: '맛집',
-      title: '광장시장 먹거리 추천 및 바가지 피하기 방법',
-      content: '육회나 빈대떡은 가격이 정해져 있어서 안전해요! 모듬순대나 떡볶이 시키실 때는 먼저 양이랑 가격 꼭 물어보시는 것 추천합니다.',
-      nickname: '남대문아재',
-      password: '2222',
-      createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-      likes: 45,
-      comments: []
-    },
-    {
-      id: 3,
-      category: '카페',
-      title: '성수동 힙하고 야외 테라스 예쁜 카페 3곳',
-      content: '주택을 개조한 이색적인 분위기의 인더스트리얼 감성 카페들 위주로 다녀왔습니다. 대기가 다소 길 수 있으나 인생사진 건지기 좋은 스팟들이에요.',
-      nickname: '커피마니아',
-      password: '3333',
-      createdAt: new Date(Date.now() - 3600000 * 8).toISOString(),
-      likes: 28,
-      comments: []
-    }
-  ]
+const normalizePost = (raw: any): Post => {
+  const rawCategory = typeof raw.category === 'string'
+    ? raw.category
+    : raw.category?.name || raw.category_name || '기타'
 
-  const posts = ref<Post[]>(JSON.parse(localStorage.getItem('localhub_posts') || 'null') || defaultPosts)
+  const categoryName = rawCategory === '여행' ? '여행지' : rawCategory === '문화' ? '축제' : rawCategory
+
+  return {
+    id: raw.id ?? raw.pk_post_id,
+    category: categoryName,
+    title: raw.title ?? '',
+    content: raw.content ?? '',
+    password: raw.password ?? '',
+    createdAt: raw.createdAt ?? raw.created_at ?? new Date().toISOString(),
+    likes: raw.likes ?? 0,
+    comments: Array.isArray(raw.comments) ? raw.comments.map((comment: any) => ({
+      id: comment.id ?? comment.pk_comment_id,
+      content: comment.content ?? '',
+      createdAt: comment.createdAt ?? comment.created_at ?? new Date().toISOString()
+    })) : [],
+    nickname: raw.nickname ?? '익명 사용자'
+  }
+}
+
+const mapCategoryToFkId = (category: string) => {
+  switch (category) {
+    case '여행지':
+      return 1
+    case '축제':
+      return 2
+    case '맛집':
+      return 3
+    default:
+      return 1
+  }
+}
+
+export const usePortalStore = defineStore('portal', () => {
+  const storedPosts = localStorage.getItem('localhub_posts')
+  const initialPosts = storedPosts ? JSON.parse(storedPosts).map(normalizePost) : []
+
+  const posts = ref<Post[]>(initialPosts)
   const selectedCategory = ref('전체')
   const searchQuery = ref('')
 
   const filteredPosts = computed(() => {
     let result = posts.value
     if (selectedCategory.value !== '전체') {
-      result = result.filter(p => p.category === selectedCategory.value)
+      result = result.filter((p) => p.category === selectedCategory.value)
     }
     if (searchQuery.value.trim()) {
       const q = searchQuery.value.toLowerCase()
-      result = result.filter(p =>
+      result = result.filter((p) =>
         p.title.toLowerCase().includes(q) ||
         p.content.toLowerCase().includes(q)
       )
@@ -89,40 +93,47 @@ export const usePortalStore = defineStore('portal', () => {
     localStorage.setItem('localhub_posts', JSON.stringify(posts.value))
   }
 
-  // fetch from backend
   const fetchPosts = async () => {
     try {
       const res = await fetch(`${API_BASE}/posts`)
       if (!res.ok) throw new Error('fetch failed')
-      posts.value = await res.json()
+      const payload = await res.json()
+      posts.value = Array.isArray(payload) ? payload.map(normalizePost) : []
       saveToStorage()
     } catch (e) {
-      // 네트워크 실패 시 로컬스토리지 유지 (이미 로드됨)
       console.warn('Failed to fetch posts, using local cache', e)
     }
   }
 
-  const addPost = async (post: Omit<Post, 'id' | 'createdAt' | 'likes' | 'comments'>) => {
+  const addPost = async (post: PostInput) => {
     try {
+      const payload = {
+        fk_category_id: mapCategoryToFkId(post.category),
+        title: post.title,
+        content: post.content,
+        password: Number(post.password)
+      }
+
       const res = await fetch(`${API_BASE}/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(post)
+        body: JSON.stringify(payload)
       })
       if (!res.ok) throw new Error('create failed')
-      const created = await res.json()
+      const created = normalizePost(await res.json())
       posts.value.unshift(created)
       saveToStorage()
       return created
     } catch (e) {
       console.error(e)
-      // fallback: 로컬에 추가
+
       const newPost: Post = {
         ...post,
         id: Date.now(),
         createdAt: new Date().toISOString(),
         likes: 0,
-        comments: []
+        comments: [],
+        nickname: post.nickname || '익명 사용자'
       } as Post
       posts.value.unshift(newPost)
       saveToStorage()
@@ -130,18 +141,27 @@ export const usePortalStore = defineStore('portal', () => {
     }
   }
 
-  const updatePost = async (id: number, updates: Partial<Post>, password?: string) => {
+  const updatePost = async (id: number, updates: Partial<PostInput>, password?: string) => {
     try {
-      const body = { ...updates } as any
-      if (password) body.password = password
+      const body: any = {
+        fk_category_id: updates.category ? mapCategoryToFkId(updates.category) : undefined,
+        title: updates.title,
+        content: updates.content,
+        password: password ? Number(password) : undefined
+      }
+
+      Object.keys(body).forEach((key) => {
+        if (body[key] === undefined) delete body[key]
+      })
+
       const res = await fetch(`${API_BASE}/posts/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       })
       if (!res.ok) throw new Error('update failed')
-      const updated = await res.json()
-      const idx = posts.value.findIndex(p => p.id === id)
+      const updated = normalizePost(await res.json())
+      const idx = posts.value.findIndex((p) => p.id === id)
       if (idx !== -1) posts.value[idx] = updated
       saveToStorage()
       return updated
@@ -149,6 +169,31 @@ export const usePortalStore = defineStore('portal', () => {
       console.error(e)
       return null
     }
+  }
+
+  const updatePostWithPassword = async (id: number, password: string, updates: Partial<PostInput>) => {
+    const current = posts.value.find((post) => post.id === id)
+    if (!current) return false
+    if (String(current.password) !== String(password)) return false
+
+    const updated = await updatePost(id, updates, password)
+    if (!updated) return false
+
+    const idx = posts.value.findIndex((post) => post.id === id)
+    if (idx !== -1) {
+      const target = posts.value[idx]
+      if (target) {
+        posts.value[idx] = {
+          ...target,
+          category: updated.category,
+          title: updated.title,
+          content: updated.content,
+          nickname: updates.nickname ?? target.nickname,
+        }
+      }
+    }
+    saveToStorage()
+    return true
   }
 
   const deletePost = async (id: number, password?: string) => {
@@ -159,7 +204,7 @@ export const usePortalStore = defineStore('portal', () => {
         body: JSON.stringify(password ? { password } : {})
       })
       if (!res.ok) throw new Error('delete failed')
-      posts.value = posts.value.filter(p => p.id !== id)
+      posts.value = posts.value.filter((p) => p.id !== id)
       saveToStorage()
       return true
     } catch (e) {
@@ -168,34 +213,12 @@ export const usePortalStore = defineStore('portal', () => {
     }
   }
 
-  const updatePostWithPassword = (
-    id: number,
-    password: string,
-    updates: Pick<Post, 'category' | 'nickname' | 'title' | 'content'>
-  ) => {
-    const post = posts.value.find((item) => item.id === id)
+  const deletePostWithPassword = async (id: number, password: string) => {
+    const current = posts.value.find((post) => post.id === id)
+    if (!current) return false
+    if (String(current.password) !== String(password)) return false
 
-    if (!post || post.password !== password) {
-      return false
-    }
-
-    Object.assign(post, updates)
-    saveToStorage()
-
-    return true
-  }
-
-  const deletePostWithPassword = (id: number, password: string) => {
-    const post = posts.value.find((item) => item.id === id)
-
-    if (!post || post.password !== password) {
-      return false
-    }
-
-    posts.value = posts.value.filter((item) => item.id !== id)
-    saveToStorage()
-
-    return true
+    return deletePost(id, password)
   }
 
   const addComment = async (postId: number, comment: Omit<Comment, 'id' | 'createdAt'>) => {
@@ -207,18 +230,16 @@ export const usePortalStore = defineStore('portal', () => {
       })
       if (!res.ok) throw new Error('add comment failed')
       const created = await res.json()
-      const post = posts.value.find(p => p.id === postId)
+      const post = posts.value.find((p) => p.id === postId)
       if (post) post.comments.push(created)
       saveToStorage()
       return created
     } catch (e) {
       console.error(e)
-      // fallback 로컬
-      const post = posts.value.find(p => p.id === postId)
+      const post = posts.value.find((p) => p.id === postId)
       if (post) {
         const localComment: Comment = {
           id: Date.now(),
-          
           content: (comment as any).content,
           createdAt: new Date().toISOString()
         }
@@ -230,7 +251,6 @@ export const usePortalStore = defineStore('portal', () => {
     }
   }
 
-  // 초기 로드
   fetchPosts()
 
   return {
@@ -241,8 +261,8 @@ export const usePortalStore = defineStore('portal', () => {
     fetchPosts,
     addPost,
     updatePost,
-    deletePost,
     updatePostWithPassword,
+    deletePost,
     deletePostWithPassword,
     addComment
   }
