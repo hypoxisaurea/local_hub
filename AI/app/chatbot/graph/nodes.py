@@ -6,10 +6,24 @@ from app.chatbot.llm.prompts import answer_prompt
 from app.chatbot.services.answer_formatter import fallback_answer, format_context, source_from_document
 from app.chatbot.services.community_search import search_community_posts
 from app.chatbot.services.local_search import search_local_data
+from app.chatbot.services.generate_sql import execute_sql, format_db_result, generate_sql_from_text
 
 
 async def classify_query(state: ChatbotState) -> ChatbotState:
     return {"route": classify_route(state["message"])}
+
+
+async def text2sql_query(state: ChatbotState) -> ChatbotState:
+    sql = await generate_sql_from_text(state["message"])
+    return {"db_query_sql": sql}
+
+
+async def execute_db_query(state: ChatbotState) -> ChatbotState:
+    try:
+        result = await execute_sql(state["db_query_sql"])
+        return {"db_results": result}
+    except Exception as e:
+        return {"db_error": str(e)}
 
 
 async def retrieve_local(state: ChatbotState) -> ChatbotState:
@@ -26,26 +40,16 @@ async def retrieve_community(state: ChatbotState) -> ChatbotState:
     return {"community_docs": docs, "sources": []}
 
 
-def _format_history(history: list | None) -> str:
-    if not history:
-        return "No previous conversation."
-
-    lines: list[str] = []
-    for item in history[-6:]:
-        if isinstance(item, dict):
-            role = item.get("role", "user")
-            content = item.get("content", "")
-        else:
-            role = getattr(item, "role", "user")
-            content = getattr(item, "content", "")
-        if content:
-            lines.append(f"{role}: {content}")
-    return "\n".join(lines) if lines else "No previous conversation."
-
-
 async def generate_answer(state: ChatbotState) -> ChatbotState:
-    docs = state.get("local_docs", [])
     route = state.get("route", "general")
+
+    if route == "db":
+        if state.get("db_error"):
+            return {"answer": f"DB 조회 중 오류가 발생했습니다: {state['db_error']}"}
+        rows = state.get("db_results", [])
+        return {"answer": format_db_result(state["message"], rows)}
+
+    docs = state.get("local_docs", [])
     model = get_chat_model()
 
     if route == "community" and not state.get("community_docs"):
