@@ -17,26 +17,55 @@
 
       <nav class="hidden md:flex items-center space-x-8">
         <RouterLink to="/community" class="font-medium text-slate-900 transition-colors hover:text-rose-500">
-          {{ ui.currentLang === 'ko' ? '커뮤니티' : 'Community' }}
+          {{ t('nav.community') }}
         </RouterLink>
         <RouterLink to="/travel" class="font-medium text-slate-900 transition-colors hover:text-rose-500">
-          {{ ui.currentLang === 'ko' ? '여행지' : 'Places' }}
+          {{ t('nav.travel') }}
         </RouterLink>
         <RouterLink to="/restaurant" class="font-medium text-slate-900 transition-colors hover:text-rose-500">
-          {{ ui.currentLang === 'ko' ? '맛집' : 'Restaurants' }}
+          {{ t('nav.restaurant') }}
         </RouterLink>
         <RouterLink to="/festival" class="font-medium text-slate-900 transition-colors hover:text-rose-500">
-          {{ ui.currentLang === 'ko' ? '축제' : 'Festivals' }}
+          {{ t('nav.festival') }}
         </RouterLink>
       </nav>
 
       <div class="flex items-center gap-2">
-        <button
-          @click="ui.toggleLang()"
-          class="px-3 py-2 rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        <div
+          class="inline-flex items-center rounded-xl border border-slate-200 bg-white/70 p-1 text-xs font-black shadow-sm backdrop-blur-sm"
+          role="group"
+          aria-label="Language"
         >
-          {{ ui.currentLang === 'ko' ? 'EN' : 'KO' }}
-        </button>
+          <button
+            type="button"
+            :aria-pressed="ui.currentLang === 'ko'"
+            @click="ui.setChatLanguage('ko')"
+            :class="[
+              'inline-flex min-w-16 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 transition-all',
+              ui.currentLang === 'ko'
+                ? 'bg-white text-slate-950 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 opacity-45 hover:opacity-80'
+            ]"
+          >
+            <img src="/assets/icons/korean.png" alt="" class="h-4 w-4 object-contain" aria-hidden="true">
+            KO
+          </button>
+
+          <button
+            type="button"
+            :aria-pressed="ui.currentLang === 'en'"
+            @click="ui.setChatLanguage('en')"
+            :class="[
+              'inline-flex min-w-16 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 transition-all',
+              ui.currentLang === 'en'
+                ? 'bg-white text-slate-950 shadow-sm ring-1 ring-slate-200'
+                : 'text-slate-500 opacity-45 hover:opacity-80'
+            ]"
+          >
+            <img src="/assets/icons/english.png" alt="" class="h-4 w-4 object-contain" aria-hidden="true">
+            EN
+          </button>
+        </div>
 
         <button class="md:hidden">
           <i class="fas fa-bars text-xl text-slate-900"></i>
@@ -49,9 +78,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useUIStore } from '@/stores/uiStore'
 
 const ui = useUIStore()
+const { t } = useI18n()
 const isScrolled = ref(false)
 
 const handleScroll = () => {

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { i18n, setLocale } from '@/i18n'
 
 export type ViewType = 'portal' | 'explorer' | 'saved' | 'post-detail'
 export type ChatRole = 'user' | 'assistant'
@@ -46,7 +47,7 @@ const detectRequestedLanguage = (message: string): 'ko' | 'en' | null => {
 const createWelcomeMessage = (): ChatMessage => ({
   id: 1,
   role: 'assistant',
-  content: '안녕하세요! 서울 마스코트 해치예요. 서울에 대해 물어보세요. 제가 친절하게 알려드릴게요!',
+  content: i18n.global.t('chat.welcome'),
   createdAt: new Date().toISOString()
 })
 
@@ -70,6 +71,7 @@ export const useUIStore = defineStore('ui', () => {
   const showAuthModal = ref(false)
   const showChat = ref(false)
   const currentLang = ref<'ko' | 'en'>(loadChatLanguage())
+  setLocale(currentLang.value)
   const toastMessage = ref('')
   const isTyping = ref(false)
   const chatMessages = ref<ChatMessage[]>(loadChatHistory())
@@ -80,6 +82,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const setChatLanguage = (language: 'ko' | 'en') => {
     currentLang.value = language
+    setLocale(language)
     sessionStorage.setItem(CHAT_LANGUAGE_KEY, language)
   }
 
@@ -96,7 +99,7 @@ export const useUIStore = defineStore('ui', () => {
 
   const toggleLang = () => {
     setChatLanguage(currentLang.value === 'ko' ? 'en' : 'ko')
-    showToast(currentLang.value === 'ko' ? '한국어로 변경되었습니다.' : 'Switched to English.')
+    showToast(i18n.global.t(currentLang.value === 'ko' ? 'toast.switchedKo' : 'toast.switchedEn'))
   }
 
   const openWriteModal = () => {
@@ -175,9 +178,9 @@ export const useUIStore = defineStore('ui', () => {
       }
 
       const data = await response.json() as { answer?: string }
-      addChatMessage('assistant', data.answer || '답변을 불러오지 못했어요. 다시 한번 물어봐 주세요.')
+      addChatMessage('assistant', data.answer || i18n.global.t('chat.fallback'))
     } catch {
-      addChatMessage('assistant', '지금은 AI 서버와 연결되지 않았어요. 잠시 후 다시 시도해 주세요.')
+      addChatMessage('assistant', i18n.global.t('chat.offline'))
     } finally {
       isTyping.value = false
     }
