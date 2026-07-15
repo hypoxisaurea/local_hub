@@ -95,15 +95,20 @@ export const usePortalStore = defineStore('portal', () => {
   })
 
   // 게시글 추가
-  const addPost = (post: Omit<Post, 'id' | 'createdAt'>) => {
+  const addPost = (
+    post: Omit<Post, 'id' | 'createdAt'>
+  ) => {
     const newPost: Post = {
       ...post,
       id: Date.now(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      likes: 0,
+      comments: [],
     }
+
     posts.value.unshift(newPost)
     saveToStorage()
-  }
+}
 
   // 게시글 수정
   const updatePost = (id: number, updates: Partial<Post>) => {
@@ -115,10 +120,41 @@ export const usePortalStore = defineStore('portal', () => {
     }
   }
 
+  // 비밀번호 확인하는 함수
+  const updatePostWithPassword = (
+    id: number,
+    password: string,
+    updates: Pick<Post, 'category' | 'nickname' | 'title' | 'content'>
+  ) => {
+    const post = posts.value.find((item) => item.id === id)
+
+    if (!post || post.password !== password) {
+      return false
+    }
+
+    Object.assign(post, updates)
+    saveToStorage()
+
+    return true
+  }
+
   // 게시글 삭제
   const deletePost = (id: number) => {
     posts.value = posts.value.filter(p => p.id !== id)
     saveToStorage()
+  }
+
+  const deletePostWithPassword = (id: number, password: string) => {
+  const post = posts.value.find((item) => item.id === id)
+
+  if (!post || post.password !== password) {
+    return false
+  }
+
+  posts.value = posts.value.filter((item) => item.id !== id)
+  saveToStorage()
+
+  return true
   }
 
   // 댓글 추가
@@ -129,15 +165,6 @@ export const usePortalStore = defineStore('portal', () => {
         ...comment,
         id: Date.now()
       })
-      saveToStorage()
-    }
-  }
-
-  // 좋아요 추가
-  const likePost = (id: number) => {
-    const post = posts.value.find(p => p.id === id)
-    if (post) {
-      post.likes += 1
       saveToStorage()
     }
   }
@@ -156,6 +183,7 @@ export const usePortalStore = defineStore('portal', () => {
     updatePost,
     deletePost,
     addComment,
-    likePost
+    updatePostWithPassword,
+    deletePostWithPassword,
   }
 })

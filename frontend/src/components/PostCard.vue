@@ -1,5 +1,5 @@
 <template>
-  <div @click="$emit('click')" class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-200 transition-all cursor-pointer group overflow-hidden">
+  <div @click="$emit('click')" class="h-full flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-rose-200 transition-all cursor-pointer group overflow-hidden">
     <!-- Card Header -->
     <div class="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-slate-50 to-transparent border-b border-slate-100">
       <div class="flex items-center space-x-3">
@@ -10,14 +10,10 @@
         <!-- Timestamp -->
         <span class="text-xs text-slate-400 font-medium">{{ formatTime(post.createdAt) }}</span>
       </div>
-      <!-- Like Button -->
-      <button @click.stop="$emit('like')" class="text-slate-300 hover:text-rose-500 transition-colors">
-        <i :class="['fas fa-heart', liked ? 'text-rose-500' : '']"></i>
-      </button>
     </div>
 
     <!-- Card Body -->
-    <div class="px-6 py-4 space-y-2">
+    <div class="flex-1 px-6 py-4 space-y-2">
       <!-- Title -->
       <h3 class="text-base font-bold text-slate-800 line-clamp-2 group-hover:text-rose-600 transition-colors">
         {{ post.title }}
@@ -29,24 +25,12 @@
     </div>
 
     <!-- Card Footer -->
-    <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
-      <!-- Left: Author & Likes -->
-      <div class="flex items-center space-x-4">
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 text-xs">
         <span class="text-slate-500 font-medium">
           <i class="fas fa-user-circle text-slate-400 mr-1"></i>
           {{ post.nickname }}
         </span>
-        <span class="text-slate-400 flex items-center space-x-1">
-          <i class="fas fa-heart text-rose-500"></i>
-          <span>{{ post.likes }}</span>
-        </span>
       </div>
-      <!-- Right: Comments -->
-      <span class="text-slate-400 flex items-center space-x-1">
-        <i class="fas fa-message text-blue-500"></i>
-        <span>{{ post.comments.length }}</span>
-      </span>
-    </div>
   </div>
 </template>
 
