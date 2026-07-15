@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $venvPath = Join-Path $repoRoot ".venv"
 $requirementsPath = Join-Path $repoRoot "requirements.txt"
+$pythonVersionScript = "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)"
 
 function Invoke-NativeCommand {
     param(
@@ -21,9 +22,19 @@ function Invoke-NativeCommand {
 
 if (-not (Test-Path $venvPath)) {
     if (Get-Command python -ErrorAction SilentlyContinue) {
-        python -m venv $venvPath
+        python -c $pythonVersionScript
+        if ($LASTEXITCODE -eq 0) {
+            python -m venv $venvPath
+        } else {
+            throw "Python 3.11+ is required. The 'python' command points to an older version."
+        }
     } elseif (Get-Command py -ErrorAction SilentlyContinue) {
-        py -3 -m venv $venvPath
+        py -3 -c $pythonVersionScript
+        if ($LASTEXITCODE -eq 0) {
+            py -3 -m venv $venvPath
+        } else {
+            throw "Python 3.11+ is required. The 'py -3' command points to an older version."
+        }
     } else {
         throw "Python 3 is required. Install Python 3.11+ and run this script again."
     }
@@ -35,6 +46,7 @@ if (-not (Test-Path $pythonExe)) {
     throw "Virtual environment was not created correctly: $pythonExe was not found."
 }
 
+Invoke-NativeCommand $pythonExe -c $pythonVersionScript
 Invoke-NativeCommand $pythonExe -m pip install --upgrade pip setuptools wheel
 Invoke-NativeCommand $pythonExe -m pip install -r $requirementsPath
 
