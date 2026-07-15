@@ -6,11 +6,13 @@ from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from . import models, schemas
-from .database import SessionLocal, engine, get_db
-from .seed import seed_initial_data
-from .tour_loader import load_tour_items_separate_tables as load_tour_items
-from .tour_loader_food import load_restaurant_items
+from .models import models
+
+from .schemas import schemas
+from .db.base import SessionLocal, engine, get_db
+from .services.seed import seed_initial_data
+from .services.tour_loader import load_tour_items_separate_tables as load_tour_items
+from .services.restaurant_loader import load_restaurant_items
 
 models.Base.metadata.create_all(bind=engine)
 

@@ -17,8 +17,8 @@ from sqlalchemy import (
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
-from .database import Base, engine
-from . import models
+from ..db.base import Base, engine
+from ..models import models
 
 def get_data_directory() -> Path:
     return Path(__file__).resolve().parents[2] / "data"
