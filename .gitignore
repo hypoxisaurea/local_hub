@@ -5,5 +5,5 @@ __pycache__/
 .pytest_cache/
 .env
 
-# SQLite DB 제외
+# SQLite DB
 localhub.db
