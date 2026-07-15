@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '@/components/LocalListPage.vue'
 import type { LocalPlace } from '@/types/local'
@@ -22,6 +22,7 @@ import type { LocalPlace } from '@/types/local'
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
+const festivalItems = ref<LocalPlace[]>([])
 
 const recommendedTags = computed(() =>
   locale.value === 'ko'
@@ -29,45 +30,42 @@ const recommendedTags = computed(() =>
     : ['#Outdoor', '#Exhibition', '#Performance', '#Free']
 )
 
-const festivals = computed<LocalPlace[]>(() => locale.value === 'ko'
-  ? [
-      {
-        id: 1,
-        title: '서울 재즈 페스티벌',
-        location: '서울특별시 송파구',
-        tags: ['#공연', '#야외행사', '#음악'],
-        image: '/images/seoul-jazz.jpg',
-      },
-      {
-        id: 2,
-        title: '한강 불빛 축제',
-        location: '서울특별시 영등포구',
-        tags: ['#야경', '#무료', '#야외행사'],
-        image: '/images/hangang-light.jpg',
-      },
-    ]
-  : [
-      {
-        id: 1,
-        title: 'Seoul Jazz Festival',
-        location: 'Songpa-gu, Seoul',
-        tags: ['#Performance', '#Outdoor', '#Music'],
-        image: '/images/seoul-jazz.jpg',
-      },
-      {
-        id: 2,
-        title: 'Hangang Light Festival',
-        location: 'Yeongdeungpo-gu, Seoul',
-        tags: ['#NightView', '#Free', '#Outdoor'],
-        image: '/images/hangang-light.jpg',
-      },
-    ])
+interface TravelSpotResponse {
+  contentid: string
+  firstimage?: string | null
+  title: string
+  addr1?: string | null
+}
+
+const toFestivalPlace = (item: TravelSpotResponse, index: number): LocalPlace => ({
+  id: Number(item.contentid) || index,
+  title: item.title,
+  location: item.addr1 || '',
+  tags: [locale.value === 'ko' ? '#축제' : '#Festivals'],
+  image: item.firstimage || '/banners/banner.png',
+})
+
+const fetchFestivals = async () => {
+  const params = new URLSearchParams({ lang: locale.value })
+  if (searchQuery.value.trim()) {
+    params.set('q', searchQuery.value.trim())
+  }
+
+  const response = await fetch(`/api/travel-spots-simple/festivals?${params.toString()}`)
+  if (!response.ok) {
+    festivalItems.value = []
+    return
+  }
+
+  const data = await response.json() as TravelSpotResponse[]
+  festivalItems.value = data.map(toFestivalPlace)
+}
 
 const filteredFestivals = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return festivals.value.filter((festival) => {
+  return festivalItems.value.filter((festival) => {
     const text = [festival.title, festival.location, ...festival.tags]
       .join(' ')
       .toLowerCase()
@@ -78,7 +76,7 @@ const filteredFestivals = computed(() => {
 })
 
 function searchFestivals() {
-  console.log(searchQuery.value)
+  fetchFestivals()
 }
 
 function toggleTag(tag: string) {
@@ -88,5 +86,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchFestivals()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchFestivals()
+})
+
+onMounted(fetchFestivals)
 </script>
