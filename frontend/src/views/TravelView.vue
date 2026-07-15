@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+// 1. onMounted 임포트 추가
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '../components/LocalListPage.vue'
 import type { LocalPlace } from '../types/local'
@@ -24,7 +25,6 @@ import type { LocalPlace } from '../types/local'
 const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
-const placeItems = ref<LocalPlace[]>([])
 
 interface PlaceRow {
   contentid: string
@@ -46,7 +46,7 @@ const filteredPlaces = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
 
-  return placeItems.value.filter((place) => {
+  return places.value.filter((place) => {
     const searchableText = [
       place.title,
       place.location,
@@ -88,7 +88,7 @@ onMounted(() => {
 })
 
 function searchPlaces() {
-  fetchPlaces()
+  console.log(searchQuery.value)
 }
 
 function toggleTag(tag: string) {
@@ -98,6 +98,5 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
-  fetchPlaces()
 }
 </script>
