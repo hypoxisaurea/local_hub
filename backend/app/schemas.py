@@ -108,3 +108,29 @@ class TourItem(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class RestaurantBase(BaseModel):
+    post_sn: int
+    title: str
+    address: Optional[str] = None
+    new_address: Optional[str] = None
+    subway_info: Optional[str] = None
+    tel: Optional[str] = None
+    homepage_url: Optional[str] = None
+    homepage_lang: Optional[str] = None
+    represent_menu: Optional[str] = None
+    use_time: Optional[str] = None
+    post_url: Optional[str] = None
+    lang_code_id: Optional[str] = None
+
+
+class RestaurantCreate(RestaurantBase):
+    pass
+
+
+class Restaurant(RestaurantBase):
+    id: int
+
+    class Config:
+        orm_mode = True
