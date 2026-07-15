@@ -57,6 +57,14 @@ class Post(PostBase):
     class Config:
         orm_mode = True
 
+# 게시글 수정
+class PostUpdate(BaseModel):
+    fk_category_id: Optional[int] = None
+    title: Optional[str] = None
+    content: Optional[str] = None
+    password: int
+
+
 # 댓글
 class CommentBase(BaseModel):
     fk_post_id: int
@@ -131,6 +139,16 @@ class RestaurantCreate(RestaurantBase):
 
 class Restaurant(RestaurantBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+# 관광지 요약 정보 (Json 데이터 기반)
+class TravelSpotSummary(BaseModel):
+    contentid: str
+    firstimage: Optional[str] = None
+    title: str
+    addr1: Optional[str] = None
 
     class Config:
         orm_mode = True

@@ -2,7 +2,7 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import relationship
 
-from .database import Base
+from ..db.base import Base
 
 # 과거 초반 데이터 설정할 때 만든 것 (임시)
 class Place(Base):

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from . import models
+from ..models import models
 
 
 def get_restaurant_data_path() -> Path:

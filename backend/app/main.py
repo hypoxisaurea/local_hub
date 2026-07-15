@@ -2,14 +2,17 @@
 
 from fastapi import FastAPI, Depends, Query, HTTPException, status
 from fastapi.responses import HTMLResponse
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from . import models, schemas
-from .database import SessionLocal, engine, get_db
-from .seed import seed_initial_data
-from .tour_loader import load_tour_items_separate_tables as load_tour_items
-from .tour_loader_food import load_restaurant_items
+from .models import models
+
+from .schemas import schemas
+from .db.base import SessionLocal, engine, get_db
+from .services.seed import seed_initial_data
+from .services.tour_loader import load_tour_items_separate_tables as load_tour_items
+from .services.restaurant_loader import load_restaurant_items
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -39,26 +42,26 @@ def read_places(
         )
     return query.order_by(models.Place.id.desc()).all()
 
-
-@app.get("/api/tour-items", response_model=List[schemas.TourItem])
-def read_tour_items(
-    q: Optional[str] = Query(None, description="검색어"),
-    contentTypeId: Optional[str] = Query(None, alias="contentTypeId"),
-    db: Session = Depends(get_db)
-):
-    query = db.query(models.TourItem)
-    if q:
-        like_q = f"%{q}%"
-        query = query.filter(
-            models.TourItem.title.ilike(like_q)
-            | models.TourItem.addr1.ilike(like_q)
-            | models.TourItem.addr2.ilike(like_q)
-            | models.TourItem.region.ilike(like_q)
-            | models.TourItem.contentType.ilike(like_q)
-        )
-    if contentTypeId:
-        query = query.filter(models.TourItem.contenttypeid == contentTypeId)
-    return query.order_by(models.TourItem.id.desc()).limit(200).all()
+# 투어 데이터 전체 있는 테이블 조회 (임시) 였는데, 테이블 단위로 나눠서 사용하므로 지금은 필요없음. 추후 필요하면 다시 살릴 수 있음
+# @app.get("/api/tour-items", response_model=List[schemas.TourItem])
+# def read_tour_items(
+#     q: Optional[str] = Query(None, description="검색어"),
+#     contentTypeId: Optional[str] = Query(None, alias="contentTypeId"),
+#     db: Session = Depends(get_db)
+# ):
+#     query = db.query(models.TourItem)
+#     if q:
+#         like_q = f"%{q}%"
+#         query = query.filter(
+#             models.TourItem.title.ilike(like_q)
+#             | models.TourItem.addr1.ilike(like_q)
+#             | models.TourItem.addr2.ilike(like_q)
+#             | models.TourItem.region.ilike(like_q)
+#             | models.TourItem.contentType.ilike(like_q)
+#         )
+#     if contentTypeId:
+#         query = query.filter(models.TourItem.contenttypeid == contentTypeId)
+#     return query.order_by(models.TourItem.id.desc()).limit(200).all()
 
 
 @app.post("/api/places", response_model=schemas.Place)
@@ -74,7 +77,7 @@ def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):
 def health_check():
     return {"status": "ok"}
 
-
+# 게시물 전체 조회 API (검색어 가능 ex./api/posts?q=한강)
 @app.get("/api/posts", response_model=List[schemas.Post])
 def read_posts(
     q: Optional[str] = Query(None, description="검색어"),
@@ -89,7 +92,7 @@ def read_posts(
         )
     return query.order_by(models.Post.pk_post_id.desc()).all()
 
-
+# 게시물 상세 조회 API
 @app.get("/api/posts/{post_id}", response_model=schemas.Post)
 def read_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
@@ -97,7 +100,7 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-
+# 게시물 생성 API
 @app.post("/api/posts", response_model=schemas.Post, status_code=status.HTTP_201_CREATED)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     db_post = models.Post(**post.dict())
@@ -106,7 +109,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     db.refresh(db_post)
     return db_post
 
-
+# 게시물 삭제 API
 @app.delete("/api/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(post_id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
@@ -116,6 +119,27 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
     db.delete(post)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+# 게시물 수정 API
+@app.put("/api/posts/{post_id}", response_model=schemas.Post)
+def update_post(post_id: int, post: schemas.PostUpdate, db: Session = Depends(get_db)):
+    db_post = db.query(models.Post).filter(models.Post.pk_post_id == post_id).first()
+    if not db_post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if db_post.password != post.password:
+        raise HTTPException(status_code=403, detail="Incorrect password")
+
+    if post.fk_category_id is not None:
+        db_post.fk_category_id = post.fk_category_id
+    if post.title is not None:
+        db_post.title = post.title
+    if post.content is not None:
+        db_post.content = post.content
+
+    db.commit()
+    db.refresh(db_post)
+    return db_post
 
 
 @app.get("/api/restaurants", response_model=List[schemas.Restaurant])
@@ -134,6 +158,129 @@ def read_restaurants(
             | models.Restaurant.subway_info.ilike(like_q)
         )
     return query.order_by(models.Restaurant.id.desc()).limit(200).all()
+
+
+TRAVEL_SPOT_TABLES = {
+    "attractions": "tour_서울_관광지",
+    "sports": "tour_서울_레포츠",
+    "culture": "tour_서울_문화시설",
+    "shopping": "tour_서울_쇼핑",
+    "festivals": "tour_서울_축제공연행사",
+}
+
+
+def _fetch_travel_spot_rows(table_name: str, q: Optional[str] = None, limit: int = 200) -> List[dict]:
+    if not inspect(engine).has_table(table_name):
+        return []
+
+    with engine.connect() as conn:
+        rows = conn.execute(text(f'SELECT * FROM "{table_name}"')).mappings().all()
+        items = [dict(row) for row in rows]
+
+    if q:
+        like_q = q.lower()
+        items = [
+            item for item in items
+            if like_q in (item.get("title") or "").lower()
+            or like_q in (item.get("addr1") or "").lower()
+            or like_q in (item.get("contentType") or "").lower()
+        ]
+
+    return items[:limit]
+
+@app.get("/api/travel-spots/attractions", response_model=List[schemas.TourItem])
+def read_travel_spots_attractions(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_rows(TRAVEL_SPOT_TABLES["attractions"], q=q)
+
+
+@app.get("/api/travel-spots/sports", response_model=List[schemas.TourItem])
+def read_travel_spots_sports(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_rows(TRAVEL_SPOT_TABLES["sports"], q=q)
+
+
+@app.get("/api/travel-spots/culture", response_model=List[schemas.TourItem])
+def read_travel_spots_culture(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_rows(TRAVEL_SPOT_TABLES["culture"], q=q)
+
+
+@app.get("/api/travel-spots/shopping", response_model=List[schemas.TourItem])
+def read_travel_spots_shopping(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_rows(TRAVEL_SPOT_TABLES["shopping"], q=q)
+
+@app.get("/api/festivals", response_model=List[schemas.TourItem])
+def read_festivals(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_rows(TRAVEL_SPOT_TABLES["festivals"], q=q)
+
+@app.get("/api/travel-spots", response_model=List[schemas.TourItem])
+def read_travel_spots(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    combined = []
+    for table_name in TRAVEL_SPOT_TABLES.values():
+        combined.extend(_fetch_travel_spot_rows(table_name, q=q, limit=200))
+    return combined
+
+
+# id, 이미지, 이름, 주소 만 가져오는 간단한 조회용 API (검색어 가능)
+def _fetch_travel_spot_simple_rows(
+    table_name: str,
+    q: Optional[str] = None,
+    limit: int = 200
+) -> List[dict]:
+    if not inspect(engine).has_table(table_name):
+        return []
+
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text(f'SELECT contentid, firstimage, title, addr1 FROM "{table_name}"')
+        ).mappings().all()
+        items = [dict(row) for row in rows]
+
+    if q:
+        like_q = q.lower()
+        items = [
+            item for item in items
+            if like_q in (item.get("title") or "").lower()
+            or like_q in (item.get("addr1") or "").lower()
+            or like_q in (item.get("contentid") or "").lower()
+        ]
+
+    return items[:limit]
+
+@app.get("/api/travel-spots-simple/attractions", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_attractions(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["attractions"], q=q)
+
+@app.get("/api/travel-spots-simple/sports", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_sports(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["sports"], q=q)
+
+@app.get("/api/travel-spots-simple/culture", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_culture(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["culture"], q=q)
+
+@app.get("/api/travel-spots-simple/shopping", response_model=List[schemas.TravelSpotSummary])
+def read_travel_spots_shopping(
+    q: Optional[str] = Query(None, description="검색어"),
+):
+    return _fetch_travel_spot_simple_rows(TRAVEL_SPOT_TABLES["shopping"], q=q)
+
 
 
 # OG 태그를 포함한 HTML을 반환하는 엔드포인트 (OpenAI 코드 / 수정 필요)
