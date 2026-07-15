@@ -4,13 +4,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_PATH="$REPO_ROOT/.venv"
 REQUIREMENTS_PATH="$REPO_ROOT/requirements.txt"
-PYTHON_VERSION_SCRIPT='import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)'
+PYTHON_VERSION_SCRIPT='import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
 
 create_venv() {
   local python_cmd="$1"
 
   if ! "$python_cmd" -c "$PYTHON_VERSION_SCRIPT"; then
-    echo "Python 3.11+ is required. The '$python_cmd' command points to an older version." >&2
+    echo "Python 3.10+ is required. The '$python_cmd' command points to an older version." >&2
     exit 1
   fi
 
@@ -23,7 +23,7 @@ if [ ! -d "$VENV_PATH" ]; then
   elif command -v python >/dev/null 2>&1; then
     create_venv python
   else
-    echo "Python 3 is required. Install Python 3.11+ and run this script again." >&2
+    echo "Python 3 is required. Install Python 3.10+ and run this script again." >&2
     exit 1
   fi
 fi
