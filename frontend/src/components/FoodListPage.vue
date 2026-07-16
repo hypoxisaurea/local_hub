@@ -188,25 +188,23 @@ function updateSearchQuery(event: Event) {
 
 .local-content {
   margin-top: 30px;
+  width: 100%;
 }
 
 .place-section {
   width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
 .place-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
 .place-card {
-  width: calc((100% - 24px) / 2);
-  max-width: none;
-  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 .place-info {
