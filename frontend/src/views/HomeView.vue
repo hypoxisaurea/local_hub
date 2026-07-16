@@ -201,16 +201,16 @@ const getWeatherIcon = (condition?: string | null) => {
   if (!condition) return 'fas fa-spinner fa-spin text-slate-400' // 로딩 중 일때
   
   const cond = condition.toLowerCase()
-  if (cond.includes('sun') || cond.includes('clear')) return 'fas fa-sun text-yellow-500'
-  if (cond.includes('cloud')) return 'fas fa-cloud text-slate-400'
-  if (cond.includes('rain')) return 'fas fa-cloud-showers-heavy text-blue-400'
-  if (cond.includes('snow')) return 'fas fa-snowflake text-sky-300'
+  if (cond.includes('sun') || cond.includes('clear') || condition.includes('맑')) return 'fas fa-sun text-yellow-500'
+  if (cond.includes('cloud') || condition.includes('구름') || condition.includes('흐림')) return 'fas fa-cloud text-slate-400'
+  if (cond.includes('rain') || condition.includes('비')) return 'fas fa-cloud-showers-heavy text-blue-400'
+  if (cond.includes('snow') || condition.includes('눈')) return 'fas fa-snowflake text-sky-300'
   
   return 'fas fa-cloud-sun text-yellow-500' // 기본값
 }
 
 onMounted(() => {
-  eventSource = new EventSource("/stream-weather")
+  eventSource = new EventSource("/api/stream-weather")
 
   eventSource.onopen = () => {
     isConnected.value = true
