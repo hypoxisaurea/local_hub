@@ -4,16 +4,6 @@ from sqlalchemy.orm import relationship
 
 from ..db.base import Base
 
-# 과거 초반 데이터 설정할 때 만든 것 (임시)
-class Place(Base):
-    __tablename__ = "places"
-
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(120), nullable=False, index=True)
-    category = Column(String(80), nullable=False, index=True)
-    description = Column(Text, nullable=True)
-    address = Column(String(255), nullable=True)
-
 # 테이블 설계하고 생성한 카테고리
 class Category(Base):
     __tablename__ = "categories"

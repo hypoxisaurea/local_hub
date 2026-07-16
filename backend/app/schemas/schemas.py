@@ -3,22 +3,6 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
-# 초기에 임시로 넣었던 플레이스(장소) 정보
-class PlaceBase(BaseModel):
-    title: str
-    category: str
-    description: Optional[str] = None
-    address: Optional[str] = None
-
-# 초기에 임시로 넣었던 플레이스(장소) 생성
-class PlaceCreate(PlaceBase):
-    pass
-
-# 초기에 임시로 넣었던 플레이스(장소) 정보
-class Place(PlaceBase):
-    id: int
-
-    model_config = ConfigDict(from_attributes=True)
 
 # 사용자가 카테고리를 사용할 때 사용하는 정보
 class CategoryBase(BaseModel):
