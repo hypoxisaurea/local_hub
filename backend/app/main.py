@@ -1,4 +1,5 @@
 from backend.app.api.routers import weather
+from backend.AI.app.chatbot.router import router as chatbot_router
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -45,3 +46,4 @@ app.include_router(restaurants.router)
 app.include_router(travel_spots.router)
 app.include_router(map.router)
 app.include_router(weather.router)
+app.include_router(chatbot_router, prefix="/api")

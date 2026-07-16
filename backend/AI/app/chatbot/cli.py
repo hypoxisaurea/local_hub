@@ -1,7 +1,7 @@
 import asyncio
 
-from app.chatbot.graph.builder import chatbot_graph
-from app.chatbot.schemas import ChatMessage
+from .graph.builder import chatbot_graph
+from .schemas import ChatMessage
 
 
 EXIT_COMMANDS = {"/exit", "/quit", "exit", "quit", "q"}

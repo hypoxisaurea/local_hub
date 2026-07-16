@@ -41,3 +41,5 @@ fi
 
 echo "Virtual environment ready at $VENV_PATH"
 echo "Activate with: source .venv/bin/activate"
+echo "Run backend and AI API with: npm run dev:backend"
+echo "Run frontend with: npm run dev:frontend"

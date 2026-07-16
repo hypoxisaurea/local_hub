@@ -1,15 +1,15 @@
 import logging
 from typing import Any
 
-from app.chatbot.config import get_settings
-from app.chatbot.graph.routing import classify_route
-from app.chatbot.graph.state import ChatbotState
-from app.chatbot.llm.client import get_chat_model
-from app.chatbot.llm.prompts import answer_prompt
-from app.chatbot.services.answer_formatter import fallback_answer, format_context, source_from_document
-from app.chatbot.services.community_search import search_community_posts
-from app.chatbot.services.local_search import search_local_data
-from app.chatbot.services.generate_sql import execute_sql, format_db_result, generate_sql_from_text
+from ..config import get_settings
+from ..llm.client import get_chat_model
+from ..llm.prompts import answer_prompt
+from ..services.answer_formatter import fallback_answer, format_context, source_from_document
+from ..services.community_search import search_community_posts
+from ..services.generate_sql import execute_sql, format_db_result, generate_sql_from_text
+from ..services.local_search import search_local_data
+from .routing import classify_route
+from .state import ChatbotState
 
 
 logger = logging.getLogger(__name__)

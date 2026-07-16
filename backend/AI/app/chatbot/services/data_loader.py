@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from app.chatbot.config import get_settings
+from ..config import get_settings
 
 
 CONTENT_TYPE_BY_FILE = {

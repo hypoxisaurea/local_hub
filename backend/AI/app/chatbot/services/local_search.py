@@ -2,8 +2,8 @@ import re
 from collections import Counter
 from typing import Any
 
-from app.chatbot.config import get_settings
-from app.chatbot.services.data_loader import load_local_documents
+from ..config import get_settings
+from .data_loader import load_local_documents
 
 
 CATEGORY_KEYWORDS = {

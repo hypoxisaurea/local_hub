@@ -1,41 +1,36 @@
-# .
+# Local Hub Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue/Vite frontend for Local Hub.
 
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Setup
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+## Development
+
+Start the backend from the repository root first. The backend serves the main API and the AI chatbot API together on port `8000`.
+
+```sh
+npm run dev:backend
+```
+
+Then start the frontend:
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The Vite dev server proxies `/api` and `/api/chat` to `http://127.0.0.1:8000`.
+
+From the repository root, you can also run:
+
+```sh
+npm run dev:frontend
+```
+
+## Build
 
 ```sh
 npm run build

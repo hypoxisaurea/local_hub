@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 
-from app.chatbot.config import get_settings
+from ..config import get_settings
 
 
 def get_chat_model() -> ChatOpenAI | None:

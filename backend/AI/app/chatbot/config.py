@@ -6,7 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 CHATBOT_DIR = Path(__file__).resolve().parent
-BACKEND_DIR = CHATBOT_DIR.parents[1]
+AI_DIR = CHATBOT_DIR.parents[1]
+BACKEND_DIR = CHATBOT_DIR.parents[2]
 PROJECT_DIR = BACKEND_DIR.parent
 
 

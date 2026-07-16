@@ -1,6 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
-from app.chatbot.graph.nodes import (
+from .nodes import (
     classify_query,
     execute_db_query,
     generate_answer,
@@ -8,8 +8,8 @@ from app.chatbot.graph.nodes import (
     retrieve_local,
     text2sql_query,
 )
-from app.chatbot.graph.routing import next_node_for_route
-from app.chatbot.graph.state import ChatbotState
+from .routing import next_node_for_route
+from .state import ChatbotState
 
 
 def build_chatbot_graph():

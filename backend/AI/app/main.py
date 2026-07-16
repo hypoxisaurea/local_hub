@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.chatbot.router import router as chatbot_router
+from .chatbot.router import router as chatbot_router
 
 
 app = FastAPI(title="Local Hub Backend")
