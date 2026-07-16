@@ -4,7 +4,6 @@
     :placeholder="t('list.festivalPlaceholder')"
     :search-query="searchQuery"
     :selected-tag="selectedTag"
-    :recommended-tags="recommendedTags"
     :items="filteredFestivals"
     @update:search-query="searchQuery = $event"
     @search="searchFestivals"
@@ -23,12 +22,6 @@ const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
 const festivalItems = ref<LocalPlace[]>([])
-
-const recommendedTags = computed(() =>
-  locale.value === 'ko'
-    ? ['#야외행사', '#전시', '#공연', '#무료']
-    : ['#Outdoor', '#Exhibition', '#Performance', '#Free']
-)
 
 interface TravelSpotResponse {
   contentid: string

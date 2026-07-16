@@ -29,7 +29,10 @@ def read_travel_spots_festivals(q: Optional[str] = Query(None), lang: str = Quer
     return crud_travel_spots._fetch_travel_spot_rows(crud_travel_spots.TRAVEL_SPOT_TABLES["festivals"], q, lang=lang)
 
 @router.get("/travel-spots", response_model=List[schemas.TourItem])
-def read_all_travel_spots(q: Optional[str] = Query(None)):
+def read_all_travel_spots(
+    q: Optional[str] = Query(None),
+    lang: str = Query("ko", pattern="^(ko|en)$"),
+):
     """
     관광지, 스포츠, 문화, 쇼핑 등 모든 카테고리의 데이터를 합쳐서 반환합니다.
     """
@@ -41,7 +44,7 @@ def read_all_travel_spots(q: Optional[str] = Query(None)):
     # 2. 반복문을 돌며 각 테이블의 데이터를 가져와서 하나의 리스트에 병합
     for category in categories:
         table = crud_travel_spots.TRAVEL_SPOT_TABLES[category]
-        spots_data = crud_travel_spots._fetch_travel_spot_rows(table, q)
+        spots_data = crud_travel_spots._fetch_travel_spot_rows(table, q, lang=lang)
         
         # 데이터가 존재한다면 리스트에 추가
         if spots_data:

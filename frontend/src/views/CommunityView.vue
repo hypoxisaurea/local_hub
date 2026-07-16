@@ -1,27 +1,35 @@
 <template>
   <section class="w-full flex-1 flex flex-col animate-fadeIn pt-28 pb-12">
     <div class="max-w-7xl mx-auto w-full px-4 lg:px-8">
-      
-      <!-- Page Header -->
-      <div class="mb-12 flex items-start justify-between gap-4">
-        <div>
-          <h1 class="mb-3 text-4xl font-black text-slate-900">
-            {{ pageTitle }}
-          </h1>
+      <!--- Community Banner -->
+      <div class="relative mb-8 min-h-[112px] overflow-hidden rounded-2xl bg-rose-50 px-5 py-5 shadow-sm sm:min-h-[132px] sm:px-8">
+        <div class="relative z-10 max-w-[72%] sm:max-w-xl">
+          <div class="min-w-0 mr-6">
+            <p class="text-lg font-black text-slate-900 sm:text-2xl">
+              {{ pageTitle }}
+            </p>
 
-          <p class="text-lg text-slate-500">
-            {{ pageSubtitle }}
-          </p>
+            <p class="mt-1 text-xs font-semibold text-slate-500 sm:text-sm">
+              {{ pageSubtitle }}
+            </p>
+          </div>
         </div>
 
         <button
           type="button"
-          class="shrink-0 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-rose-100 transition-all hover:bg-rose-600"
+          class="absolute right-5 bottom-5 z-20 shrink-0 rounded-xl bg-rose-500 px-3 py-2 text-sm font-bold text-white shadow-md shadow-rose-100 transition-all hover:bg-rose-600 sm:right-8"
           @click="openWriteForm"
         >
           <i class="fas fa-pen mr-2"></i>
           {{ t('community.writeShort') }}
         </button>
+
+        <img
+          src="/banners/community_banner.png"
+          alt=""
+          class="pointer-events-none absolute bottom-0 right-0 h-[92px] w-auto object-contain sm:h-[126px]"
+          aria-hidden="true"
+        >
       </div>
 
       <!-- Category & Search Section -->
