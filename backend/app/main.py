@@ -1,7 +1,11 @@
 from backend.app.api.routers import weather
 from backend.AI.app.chatbot.router import router as chatbot_router
-from fastapi import FastAPI, Request
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .db.base import Base, engine, SessionLocal
 from .services.seed import seed_initial_data
@@ -47,3 +51,33 @@ app.include_router(travel_spots.router)
 app.include_router(map.router)
 app.include_router(weather.router)
 app.include_router(chatbot_router, prefix="/api")
+
+DIST_DIR = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+INDEX_FILE = DIST_DIR / "index.html"
+ASSETS_DIR = DIST_DIR / "assets"
+
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
+
+@app.get("/")
+def serve_index():
+    if not INDEX_FILE.exists():
+        return {"message": "LocalHub API is running", "docs": "/docs", "health": "/api/health"}
+
+    return FileResponse(INDEX_FILE)
+
+
+@app.get("/{path:path}")
+def serve_spa(path: str):
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    if not INDEX_FILE.exists():
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    requested_file = DIST_DIR / path
+    if requested_file.is_file():
+        return FileResponse(requested_file)
+
+    return FileResponse(INDEX_FILE)
