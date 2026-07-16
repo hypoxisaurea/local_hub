@@ -70,7 +70,7 @@
           <div ref="mapContainer" class="absolute inset-0 z-0"></div>
 
           <div
-            class="absolute left-4 right-4 top-4 z-[400] flex flex-col gap-3 sm:left-6 sm:right-6 sm:flex-row sm:items-center sm:justify-between"
+            class="absolute left-4 right-4 top-4 z-[400] flex flex-col gap-3 sm:left-6 sm:right-6 sm:flex-row sm:items-start sm:justify-between"
           >
             <div
               class="px-5 py-4 border shadow-lg rounded-2xl border-white/70 bg-white/90 shadow-slate-900/10 backdrop-blur-md"
@@ -89,7 +89,7 @@
             </div>
 
             <div
-              class="flex flex-wrap gap-2 p-2 border shadow-lg rounded-2xl border-white/70 bg-white/90 shadow-slate-900/10 backdrop-blur-md"
+              class="ml-auto flex w-fit max-w-full flex-wrap justify-end gap-2 p-2 border shadow-lg rounded-2xl shadow-slate-900/10 backdrop-blur-md sm:w-[25rem]"
             >
               <button
                 v-for="category in mapCategories"
@@ -97,7 +97,7 @@
                 type="button"
                 @click="selectMapCategory(category.value)"
                 :class="[
-                  'rounded-xl px-3 py-2 text-xs font-bold transition-all',
+                  'min-w-0 basis-[calc((100%_-_1.5rem)/3)] whitespace-nowrap rounded-xl px-3 py-2 text-center text-xs font-bold transition-all',
                   selectedMapCategory === category.value
                     ? 'bg-rose-500 text-white shadow-md shadow-rose-100'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200',
@@ -267,7 +267,6 @@ const mapCategories = computed(() => [
   { label: t("categories.all"), value: "all" },
   { label: t("categories.travel"), value: "관광지" },
   { label: t("categories.leports"), value: "레포츠" },
-  { label: t("categories.restaurant"), value: "맛집" },
   { label: t("categories.culture"), value: "문화시설" },
   { label: t("categories.shopping"), value: "쇼핑" },
   { label: t("categories.festival"), value: "축제" },
