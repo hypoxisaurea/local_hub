@@ -411,6 +411,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { usePortalStore } from '@/stores/portalStore'
 import { useUIStore } from '@/stores/uiStore'
 import type { Post } from '@/stores/portalStore'
@@ -418,6 +419,8 @@ import PostCard from '@/components/PostCard.vue'
 
 const portal = usePortalStore()
 const ui = useUIStore()
+const route = useRoute()
+const router = useRouter()
 const { locale, t } = useI18n()
 
 const searchQuery = ref('')
@@ -437,11 +440,24 @@ const DISPLAY_PAGE_COUNT = 10
 
 // 검색 실행
 const runSearch = () => {
-  portal.searchQuery = searchQuery.value
+  const query = searchQuery.value.trim()
+  portal.searchQuery = query
   currentPage.value = 1 // 검색하면 첫 페이지부터 표시
 
-  if (searchQuery.value.trim()) {
-    ui.showToast(t('toast.searchApplied', { query: searchQuery.value }))
+  const nextQuery = { ...route.query }
+  if (query) {
+    nextQuery.q = query
+  } else {
+    delete nextQuery.q
+  }
+
+  router.replace({
+    path: '/community',
+    query: nextQuery,
+  })
+
+  if (query) {
+    ui.showToast(t('toast.searchApplied', { query }))
   }
 }
 const showPostForm = ref(false)
@@ -665,6 +681,17 @@ const pageNumbers = computed(() => {
 const movePage = (page: number) => {
   currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
 }
+
+watch(
+  () => route.query.q,
+  (query) => {
+    const nextQuery = Array.isArray(query) ? query[0] ?? '' : query ?? ''
+    searchQuery.value = nextQuery
+    portal.searchQuery = nextQuery
+    currentPage.value = 1
+  },
+  { immediate: true }
+)
 
 const verifyPostPassword = async () => {
   if (!editingPost.value) return

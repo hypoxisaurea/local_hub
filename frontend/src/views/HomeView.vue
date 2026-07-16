@@ -239,11 +239,13 @@ onUnmounted(() => {
 import { useI18n } from "vue-i18n";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useRouter } from "vue-router";
 import { usePortalStore } from "@/stores/portalStore";
 import { useUIStore } from "@/stores/uiStore";
 
 const portal = usePortalStore();
 const ui = useUIStore();
+const router = useRouter();
 const { t } = useI18n();
 
 const searchQuery = ref("");
@@ -299,10 +301,18 @@ const homeTags = computed(() => [
 ]);
 
 const runSearch = () => {
-  portal.searchQuery = searchQuery.value;
-  if (searchQuery.value.trim()) {
-    ui.showToast(t("toast.searchApplied", { query: searchQuery.value }));
+  const query = searchQuery.value.trim();
+  portal.searchQuery = query;
+  portal.selectedCategory = "전체";
+
+  if (query) {
+    ui.showToast(t("toast.searchApplied", { query }));
   }
+
+  router.push({
+    path: "/community",
+    query: query ? { q: query } : undefined,
+  });
 };
 
 const applyTag = (tag: string) => {
