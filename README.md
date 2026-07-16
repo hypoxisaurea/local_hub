@@ -34,19 +34,6 @@ node --version
 npm --version
 ```
 
-## 환경 변수 설정
-
-루트의 `.env.example`을 복사해 `.env`를 만들고 각 API 키를 채웁니다. `.env`는 Git에 올리지 않습니다.
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Bash 환경에서는 다음 명령을 사용합니다.
-
-```bash
-cp .env.example .env
-```
 
 ## Python 가상환경 정책
 
