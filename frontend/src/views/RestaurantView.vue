@@ -4,7 +4,11 @@
     :placeholder="t('list.restaurantPlaceholder')"
     :search-query="searchQuery"
     :selected-tag="selectedTag"
-    :items="filteredRestaurants"
+    :items="paginatedRestaurants"
+    :current-page="currentPage"
+    :page-numbers="pageNumbers"
+    :total-pages="totalPages"
+    @page-change="movePage"
     @update:search-query="searchQuery = $event"
     @search="searchRestaurants"
     @tag-click="toggleTag"
@@ -22,6 +26,46 @@ const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
 const restaurantItems = ref<LocalPlace[]>([])
+
+// --- 페이지네이션 상태 추가 ---
+const currentPage = ref(1)
+const ITEMS_PER_PAGE = 9
+
+// 필터링 로직
+const filteredRestaurants = computed(() => {
+  const query = searchQuery.value.toLowerCase().replace('#', '')
+  const tag = selectedTag.value.replace('#', '')
+
+  return restaurantItems.value.filter((restaurant) => {
+    const text = [restaurant.title, restaurant.location, ...restaurant.tags]
+      .join(' ')
+      .toLowerCase()
+      .replaceAll('#', '')
+    return (!query || text.includes(query)) && (!tag || text.includes(tag))
+  })
+})
+
+// --- 페이지네이션 계산 속성 ---
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredRestaurants.value.length / ITEMS_PER_PAGE)))
+
+const paginatedRestaurants = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  return filteredRestaurants.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+const DISPLAY_PAGE_COUNT = 10
+const pageNumbers = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  let startPage = Math.max(1, current - Math.floor(DISPLAY_PAGE_COUNT / 2))
+  let endPage = Math.min(total, startPage + DISPLAY_PAGE_COUNT - 1)
+  startPage = Math.max(1, endPage - DISPLAY_PAGE_COUNT + 1)
+  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
+})
+
+const movePage = (page: number) => {
+  currentPage.value = page
+}
 
 interface RestaurantResponse {
   id: number
@@ -59,21 +103,8 @@ const fetchRestaurants = async () => {
   restaurantItems.value = data.map(toRestaurantPlace)
 }
 
-const filteredRestaurants = computed(() => {
-  const query = searchQuery.value.toLowerCase().replace('#', '')
-  const tag = selectedTag.value.replace('#', '')
-
-  return restaurantItems.value.filter((restaurant) => {
-    const text = [restaurant.title, restaurant.location, ...restaurant.tags]
-      .join(' ')
-      .toLowerCase()
-      .replaceAll('#', '')
-
-    return (!query || text.includes(query)) && (!tag || text.includes(tag))
-  })
-})
-
 function searchRestaurants() {
+  currentPage.value = 1
   fetchRestaurants()
 }
 
@@ -84,6 +115,7 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  currentPage.value = 1
   fetchRestaurants()
 }
 
