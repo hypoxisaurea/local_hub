@@ -21,7 +21,7 @@ class ChatbotSettings(BaseSettings):
         ),
     )
     openai_model: str = Field(
-        default="gpt-5-mini",
+        default="gpt-4o-mini",
         validation_alias=AliasChoices(
             "OPENAI_MODEL",
             "OPEN_AI_MODEL",
