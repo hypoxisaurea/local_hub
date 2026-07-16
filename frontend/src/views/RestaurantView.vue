@@ -29,7 +29,7 @@ const restaurantItems = ref<LocalPlace[]>([])
 
 // --- 페이지네이션 상태 추가 ---
 const currentPage = ref(1)
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 9
 
 // 필터링 로직
 const filteredRestaurants = computed(() => {
