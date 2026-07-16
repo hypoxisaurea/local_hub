@@ -116,6 +116,7 @@ const movePage = (page: number) => {
 function searchPlaces() {
   console.log(searchQuery.value)
   currentPage.value = 1
+  fetchPlace()
 }
 
 async function fetchPlace() {
@@ -158,10 +159,6 @@ async function fetchPlace() {
 onMounted(() => {
   fetchPlace()
 })
-
-function searchPlaces() {
-  fetchPlace()
-}
 
 function toggleTag(tag: string) {
   selectedTag.value = selectedTag.value === tag ? '' : tag
