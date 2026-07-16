@@ -16,18 +16,6 @@
 
           <button type="submit">{{ t('common.search') }}</button>
         </form>
-
-        <div class="tag-list">
-          <button
-            v-for="tag in recommendedTags"
-            :key="tag"
-            type="button"
-            :class="{ active: selectedTag === tag }"
-            @click="emit('tag-click', tag)"
-          >
-            {{ tag }}
-          </button>
-        </div>
       </section>
 
       <div class="local-content">
@@ -68,7 +56,6 @@ defineProps<{
   placeholder: string
   searchQuery: string
   selectedTag: string
-  recommendedTags: string[]
   items: LocalPlace[]
   popularKeywords?: PopularKeyword[]
   aiDescription?: string

@@ -7,17 +7,6 @@
       </div>
 
       <div class="footer-section">
-        <h4>{{ t('footer.menu') }}</h4>
-        <ul>
-          <li><RouterLink to="/">{{ t('footer.home') }}</RouterLink></li>
-          <li><RouterLink to="/community">{{ t('nav.community') }}</RouterLink></li>
-          <li><RouterLink to="/travel">{{ t('nav.travel') }}</RouterLink></li>
-          <li><RouterLink to="/restaurant">{{ t('nav.restaurant') }}</RouterLink></li>
-          <li><RouterLink to="/festival">{{ t('nav.festival') }}</RouterLink></li>
-        </ul>
-      </div>
-
-      <div class="footer-section">
         <h4>{{ t('footer.support') }}</h4>
         <ul>
           <li><a href="#">{{ t('footer.notice') }}</a></li>

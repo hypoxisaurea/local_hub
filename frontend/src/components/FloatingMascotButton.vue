@@ -17,7 +17,7 @@ const updateFooterOffset = () => {
   frameId = requestAnimationFrame(() => {
     const footer = document.querySelector<HTMLElement>('footer.footer')
 
-    if (!footer) {
+    if (!footer || window.scrollY <= 1) {
       footerOffset.value = 0
       return
     }
@@ -61,9 +61,11 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .floating-mascot-button {
+  --floating-bottom-gap: 30px;
+
   position: fixed;
   right: max(50px, env(safe-area-inset-right));
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + var(--floating-footer-offset, 0px));
+  bottom: calc(max(var(--floating-bottom-gap), env(safe-area-inset-bottom)) + var(--floating-footer-offset, 0px));
   z-index: 60;
   width: clamp(72px, 8vw, 92px);
   height: clamp(72px, 8vw, 92px);
@@ -141,8 +143,9 @@ onBeforeUnmount(() => {
 
 @media (max-width: 640px) {
   .floating-mascot-button {
+    --floating-bottom-gap: 22px;
+
     right: max(14px, env(safe-area-inset-right));
-    bottom: calc(max(14px, env(safe-area-inset-bottom)) + var(--floating-footer-offset, 0px));
   }
 }
 </style>
