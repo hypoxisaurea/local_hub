@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 // 1. onMounted 임포트 추가
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LocalListPage from '../components/LocalListPage.vue'
 import type { LocalPlace } from '../types/local'
@@ -34,6 +34,7 @@ interface PlaceRow {
   firstimage?: string | null
   title: string
   addr1?: string | null
+  contentType?: string | null
 }
 
 const recommendedTags = computed(() =>
@@ -119,7 +120,12 @@ function searchPlaces() {
 
 async function fetchPlace() {
   try {
-    const res = await fetch('/api/travel-spots')
+    const params = new URLSearchParams({ lang: locale.value })
+    if (searchQuery.value.trim()) {
+      params.set('q', searchQuery.value.trim())
+    }
+
+    const res = await fetch(`/api/travel-spots?${params.toString()}`)
     if (!res.ok) throw new Error('failed to load places')
 
     const rows: PlaceRow[] = await res.json()
@@ -130,6 +136,18 @@ async function fetchPlace() {
       tags: ['#관광지', '#문화', '#장소'],
       image: row.firstimage || '/images/default-festival.jpg',
     }))
+    places.value = places.value.map((place, index) => {
+      const row: Partial<PlaceRow> = rows[index] ?? {}
+      const fallbackType = locale.value === 'ko' ? '관광지' : 'Places'
+      const areaTag = locale.value === 'ko' ? '#서울' : '#Seoul'
+
+      return {
+        ...place,
+        title: row.title || (locale.value === 'ko' ? '제목 없음' : 'Untitled'),
+        location: row.addr1 || (locale.value === 'ko' ? '서울' : 'Seoul'),
+        tags: [`#${(row.contentType || fallbackType).replace(/\s+/g, '')}`, areaTag],
+      }
+    })
   } catch (error) {
     console.error('Failed to load places from DB', error)
     places.value = []
@@ -141,6 +159,10 @@ onMounted(() => {
   fetchPlace()
 })
 
+function searchPlaces() {
+  fetchPlace()
+}
+
 function toggleTag(tag: string) {
   selectedTag.value = selectedTag.value === tag ? '' : tag
 }
@@ -148,5 +170,11 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  fetchPlace()
 }
+
+watch(locale, () => {
+  selectedTag.value = ''
+  fetchPlace()
+})
 </script>

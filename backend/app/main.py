@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from backend.app.api.routers import weather
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+
 from .db.base import Base, engine, SessionLocal
 from .services.seed import seed_initial_data
 from .services.tour_loader import load_tour_items_separate_tables as load_tour_items
@@ -42,3 +44,4 @@ app.include_router(posts.router)
 app.include_router(restaurants.router)
 app.include_router(travel_spots.router)
 app.include_router(map.router)
+app.include_router(weather.router)
