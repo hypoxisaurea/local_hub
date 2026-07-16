@@ -114,6 +114,15 @@
     "privacy": "Privacy Policy",
     "follow": "Follow"
   },
+  "share": {
+    "label": "Share this page",
+    "native": "Share",
+    "facebook": "Share on Facebook",
+    "x": "Share on X",
+    "kakao": "Share on KakaoStory",
+    "copy": "Copy link",
+    "copied": "Copied"
+  },
   "toast": {
     "switchedKo": "한국어로 변경되었습니다.",
     "switchedEn": "Switched to English.",
