@@ -1,21 +1,6 @@
 <template>
   <section class="w-full flex-1 flex flex-col animate-fadeIn pt-28 pb-12">
     <div class="max-w-7xl mx-auto w-full px-4 lg:px-8">
-
-      
-      <!-- Page Header -->
-      <div class="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <!-- <h1 class="mb-3 text-4xl font-black text-slate-900">
-            {{ pageTitle }}
-          </h1>
-
-          <p class="text-lg text-slate-500">
-            {{ pageSubtitle }}
-          </p> -->
-        </div>
-      </div>
-
       <!--- Community Banner -->
       <div class="relative mb-8 min-h-[112px] overflow-hidden rounded-2xl bg-rose-50 px-5 py-5 shadow-sm sm:min-h-[132px] sm:px-8">
         <div class="relative z-10 max-w-[72%] sm:max-w-xl">
