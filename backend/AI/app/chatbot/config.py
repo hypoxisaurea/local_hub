@@ -38,7 +38,7 @@ class ChatbotSettings(BaseSettings):
         ),
     )
     data_dir: Path = Field(
-        default=PROJECT_DIR / "data",
+        default=BACKEND_DIR / "data",
         validation_alias=AliasChoices(
             "DATA_DIR",
             "CHATBOT_DATA_DIR",

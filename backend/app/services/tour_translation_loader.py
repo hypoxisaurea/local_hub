@@ -7,7 +7,7 @@ from ..models import models
 
 
 def get_translation_file() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "tour_item_translations.json"
+    return Path(__file__).resolve().parents[2] / "data" / "tour_item_translations.json"
 
 
 def load_tour_item_translations(db: Session) -> int:

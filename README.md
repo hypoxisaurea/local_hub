@@ -11,7 +11,7 @@ local_hub/
 ├── .venv/                 # 루트 공용 Python 가상환경, Git에 올리지 않음
 ├── backend/AI/            # AI 챗봇 FastAPI/그래프 코드
 ├── backend/               # 메인 FastAPI 백엔드 코드
-├── data/                  # 로컬 데이터 파일 및 스키마 문서
+├── backend/data/          # 로컬 데이터 파일 및 스키마 문서
 ├── frontend/              # Vue/Vite 프론트엔드
 ├── backend/requirements.txt  # Python 의존성 단일 관리 파일
 ├── setup.ps1              # Windows PowerShell용 Python 환경 설정 스크립트

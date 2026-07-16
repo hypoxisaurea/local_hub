@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from ..db.base import Base, engine
 
 def get_data_directory() -> Path:
-    return Path(__file__).resolve().parents[3] / "data"
+    return Path(__file__).resolve().parents[2] / "data"
 
 TOUR_DATA_FILES = [
     "서울_관광지.json",

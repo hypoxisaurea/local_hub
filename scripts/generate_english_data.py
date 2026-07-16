@@ -16,7 +16,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT / "data"
+DATA_DIR = ROOT / "backend" / "data"
 
 TOUR_FILES = [
     "서울_관광지.json",

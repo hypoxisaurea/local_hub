@@ -7,11 +7,11 @@ from ..models import models
 
 
 def get_restaurant_data_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "서울_맛집.json"
+    return Path(__file__).resolve().parents[2] / "data" / "서울_맛집.json"
 
 
 def get_restaurant_en_data_path() -> Path:
-    return Path(__file__).resolve().parents[3] / "data" / "서울_맛집_en.json"
+    return Path(__file__).resolve().parents[2] / "data" / "서울_맛집_en.json"
 
 
 def _load_restaurant_items(db: Session, data_path: Path, model: type[models.Restaurant]) -> int:
