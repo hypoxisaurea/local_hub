@@ -157,23 +157,23 @@ function updateSearchQuery(event: Event) {
 
 .local-content {
   margin-top: 30px;
-  width: 100%;
 }
 
 .place-section {
   width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .place-grid {
-  width: 100%;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
 
 .place-card {
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: none;
   overflow: hidden;
 }
 
@@ -191,13 +191,10 @@ function updateSearchQuery(event: Event) {
 .place-info h2 {
   margin: 0 0 6px;
   font-size: 1.12rem;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: keep-all;
 }
 
 .place-info p {
-  margin-bottom: 20px;
+  margin: 0;
   color: #69758a;
   font-size: 0.86rem;
 }
@@ -206,7 +203,7 @@ function updateSearchQuery(event: Event) {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin-bottom: 12px;
+  margin-top: 12px;
 }
 
 .place-tags span {
@@ -243,7 +240,7 @@ function updateSearchQuery(event: Event) {
 
 @media (max-width: 1000px) {
   .place-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 180px);
   }
 }
 
