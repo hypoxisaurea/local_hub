@@ -328,11 +328,12 @@ const renderMapSpots = () => {
     const coordinates = getValidCoordinates(spot);
     if (!coordinates) return;
 
+    const popupCategory = spot.contentType || spot.category;
     const marker = L.marker([coordinates.lat, coordinates.lng], {
       icon: createMapPinIcon(spot.category),
     }).bindPopup(`
       <strong>${escapeHtml(spot.title)}</strong><br>
-      <span>${escapeHtml(spot.category)}</span><br>
+      <span>${escapeHtml(popupCategory)}</span><br>
       <span>${escapeHtml(spot.addr1)}</span>
     `);
 
