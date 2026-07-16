@@ -481,10 +481,12 @@ const closePostForm = () => {
 const submitPostForm = async () => {
   const { category, nickname, title, content, password } = postForm.value
 
-  if (!nickname.trim() || !title.trim() || !content.trim()) {
+  if (!title.trim() || !content.trim()) {
     ui.showToast(t('toast.requiredPostFields'))
     return
   }
+  // 🟢 닉네임이 비어있다면 익명 처리를 해줍니다 (선택 사항이지만 권장)
+  const finalNickname = nickname.trim() || '익명 사용자'
 
   // 게시글 수정
   if (editingPost.value) {
@@ -493,7 +495,7 @@ const submitPostForm = async () => {
       editPassword.value,
       {
         category,
-        nickname: nickname.trim(),
+        nickname: finalNickname,
         title: title.trim(),
         content: content.trim(),
       }
@@ -508,7 +510,7 @@ const submitPostForm = async () => {
       selectedPost.value = {
         ...selectedPost.value,
         category,
-        nickname: nickname.trim(),
+        nickname: finalNickname,
         title: title.trim(),
         content: content.trim(),
       }
@@ -528,7 +530,7 @@ const submitPostForm = async () => {
 
   await portal.addPost({
     category,
-    nickname: nickname.trim(),
+    nickname: finalNickname,
     title: title.trim(),
     content: content.trim(),
     password,
