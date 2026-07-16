@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $venvPath = Join-Path $repoRoot ".venv"
-$requirementsPath = Join-Path $repoRoot "requirements.txt"
+$requirementsPath = Join-Path $repoRoot "backend/requirements.txt"
 $pythonVersionScript = "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)"
 
 function Invoke-NativeCommand {

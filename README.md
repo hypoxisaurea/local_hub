@@ -13,7 +13,7 @@ local_hub/
 ├── backend/               # 메인 FastAPI 백엔드 코드
 ├── data/                  # 로컬 데이터 파일 및 스키마 문서
 ├── frontend/              # Vue/Vite 프론트엔드
-├── requirements.txt       # Python 의존성 단일 관리 파일
+├── backend/requirements.txt  # Python 의존성 단일 관리 파일
 ├── setup.ps1              # Windows PowerShell용 Python 환경 설정 스크립트
 └── setup.sh               # Git Bash/Linux/macOS용 Python 환경 설정 스크립트
 ```
@@ -57,7 +57,7 @@ local_hub/venv
 
 - `backend`와 `AI`가 같은 Python 패키지들을 함께 사용합니다.
 - 팀원마다 다른 위치에 가상환경을 만들면 import, 실행 경로, 패키지 버전이 쉽게 꼬입니다.
-- 루트 `requirements.txt` 하나만 관리하면 의존성 변경 사항을 리뷰하기 쉽습니다.
+- `backend/requirements.txt` 하나만 관리하면 의존성 변경 사항을 리뷰하기 쉽습니다.
 
 ## Windows PowerShell 설정 방법
 
@@ -71,7 +71,7 @@ local_hub/venv
 
 1. 루트에 `.venv`가 없으면 새로 생성합니다.
 2. `.venv` 안의 Python으로 `pip`, `setuptools`, `wheel`을 업데이트합니다.
-3. 루트 `requirements.txt`에 적힌 Python 패키지를 설치합니다.
+3. `backend/requirements.txt`에 적힌 Python 패키지를 설치합니다.
 
 설치가 끝나면 현재 터미널에서 가상환경을 활성화합니다.
 
@@ -101,7 +101,7 @@ source .venv/bin/activate
 
 ## 의존성 추가 방법
 
-Python 패키지를 새로 추가할 때는 루트 `requirements.txt`만 수정합니다.
+Python 패키지를 새로 추가할 때는 `backend/requirements.txt`만 수정합니다.
 
 예:
 
@@ -122,7 +122,7 @@ sqlalchemy==2.0.22
 bash setup.sh
 ```
 
-Python 의존성은 루트 `requirements.txt` 하나로만 관리합니다. 백엔드와 AI 의존성을 추가할 때도 루트 파일만 수정하면 됩니다.
+Python 의존성은 `backend/requirements.txt` 하나로만 관리합니다. 백엔드와 AI 의존성을 추가할 때도 이 파일만 수정하면 됩니다.
 
 ## 백엔드 실행
 
@@ -295,7 +295,7 @@ __pycache__/
 팀 공용으로 관리해야 하는 파일은 다음입니다.
 
 ```text
-requirements.txt
+backend/requirements.txt
 setup.ps1
 setup.sh
 README.md

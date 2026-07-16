@@ -3,7 +3,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_PATH="$REPO_ROOT/.venv"
-REQUIREMENTS_PATH="$REPO_ROOT/requirements.txt"
+REQUIREMENTS_PATH="$REPO_ROOT/backend/requirements.txt"
 PYTHON_VERSION_SCRIPT='import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
 
 create_venv() {
