@@ -120,11 +120,11 @@
           </h4>
           
           <div v-if="weather" class="mt-3 space-y-2 transition-all duration-300">
-            <div class="flex items-baseline gap-2">
+            <div class="flex justify-between items-baseline gap-2">
               <span class="text-3xl font-extrabold tracking-tight text-slate-900">
                 {{ weather.temp }}°C
               </span>
-              <span class="text-sm font-medium text-slate-500">
+              <span class="text-sm font-medium text-slate-500 right-5">
                 {{ weather.condition }}
               </span>
             </div>
@@ -188,11 +188,16 @@ import {
 
 // ---------------------------------------------------
 // 날씨 부분 스크립트 추가
-const weather = ref(null)
+interface WeatherUpdate {
+  temp: number | string
+  condition: string
+}
+
+const weather = ref<WeatherUpdate | null>(null)
 const isConnected = ref(false)
 let eventSource: EventSource | null = null
 
-const getWeatherIcon = (condition) => {
+const getWeatherIcon = (condition?: string | null) => {
   if (!condition) return 'fas fa-spinner fa-spin text-slate-400' // 로딩 중 일때
   
   const cond = condition.toLowerCase()
