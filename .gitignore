@@ -71,7 +71,6 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Local databases
-localhub.db
 *.sqlite
 *.sqlite3
 *.db-journal
