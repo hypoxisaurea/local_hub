@@ -6,7 +6,7 @@ from typing import List, Optional
 from ...crud import weather as crud_weather
 from sse_starlette.sse import EventSourceResponse
 
-router = APIRouter(prefix="/stream-weather", tags=["stream-weather"])
+router = APIRouter(prefix="/api/stream-weather", tags=["stream-weather"])
 
 @router.get("")
 async def stream_weather(request: Request):
