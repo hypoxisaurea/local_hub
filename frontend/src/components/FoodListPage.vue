@@ -158,24 +158,23 @@ function updateSearchQuery(event: Event) {
 
 .local-content {
   margin-top: 30px;
+  width: 100%;
 }
 
 .place-section {
   width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
 }
 
 .place-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
 .place-card {
-  width: calc((100% - 24px) / 2);
-  max-width: none;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -194,6 +193,9 @@ function updateSearchQuery(event: Event) {
 .place-info h2 {
   margin: 0 0 6px;
   font-size: 1.12rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 .place-info p {
@@ -233,8 +235,19 @@ function updateSearchQuery(event: Event) {
     grid-template-columns: 1fr;
   }
 
+  .place-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .sidebar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .place-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
   }
 }
 
