@@ -433,6 +433,7 @@ const writeLabel = computed(() => t('community.write'))
 const emptyLabel = computed(() => t('community.empty'))
 const emptyHint = computed(() => t('community.emptyHint'))
 const passwordAction = ref<'edit' | 'delete'>('edit')
+const DISPLAY_PAGE_COUNT = 10
 
 // 검색 실행
 const runSearch = () => {
@@ -616,7 +617,42 @@ const paginatedPosts = computed(() => {
 })
 
 const pageNumbers = computed(() => {
-  return Array.from({ length: totalPages.value }, (_, index) => index + 1)
+  const total = totalPages.value
+
+  // 전체 페이지가 10개 이하라면 모두 표시
+  if (total <= DISPLAY_PAGE_COUNT) {
+    return Array.from(
+      { length: total },
+      (_, index) => index + 1
+    )
+  }
+
+
+  let startPage =
+    currentPage.value - Math.floor(DISPLAY_PAGE_COUNT / 2)
+
+  let endPage =
+    currentPage.value + Math.floor(DISPLAY_PAGE_COUNT / 2) - 1
+
+
+  // 앞쪽 보정
+  if (startPage < 1) {
+    startPage = 1
+    endPage = DISPLAY_PAGE_COUNT
+  }
+
+
+  // 뒤쪽 보정
+  if (endPage > total) {
+    endPage = total
+    startPage = total - DISPLAY_PAGE_COUNT + 1
+  }
+
+
+  return Array.from(
+    { length: DISPLAY_PAGE_COUNT },
+    (_, index) => startPage + index
+  )
 })
 
 const movePage = (page: number) => {

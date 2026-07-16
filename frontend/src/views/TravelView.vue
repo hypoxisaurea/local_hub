@@ -7,7 +7,10 @@
     :search-query="searchQuery"
     :selected-tag="selectedTag"
     :recommended-tags="recommendedTags"
-    :items="filteredPlaces"
+    :items="paginatedPlaces"
+    :current-page="currentPage"
+    :page-numbers="pageNumbers"
+    @page-change="movePage"
     @update:search-query="searchQuery = $event"
     @search="searchPlaces"
     @tag-click="toggleTag"
@@ -43,6 +46,39 @@ const recommendedTags = computed(() =>
 // 2. computed 대신 데이터를 직접 쓸 수 있는 ref 변수로 변경
 const places = ref<LocalPlace[]>([])
 
+// --- 페이지네이션 로직 ---
+const DISPLAY_PAGE_COUNT = 10;
+const currentPage = ref(1)
+const ITEMS_PER_PAGE = 10
+
+const pageNumbers = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+
+  // 전체 페이지가 10개 이하라면 모두 표시
+  if (total <= DISPLAY_PAGE_COUNT) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+
+  // 페이지 범위 계산
+  let startPage = current - Math.floor(DISPLAY_PAGE_COUNT / 2);
+  let endPage = current + Math.floor(DISPLAY_PAGE_COUNT / 2) - 1;
+
+  // 앞쪽 보정
+  if (startPage < 1) {
+    startPage = 1;
+    endPage = DISPLAY_PAGE_COUNT;
+  }
+
+  // 뒤쪽 보정
+  if (endPage > total) {
+    endPage = total;
+    startPage = total - DISPLAY_PAGE_COUNT + 1;
+  }
+
+  return Array.from({ length: DISPLAY_PAGE_COUNT }, (_, i) => startPage + i);
+});
+
 const filteredPlaces = computed(() => {
   const query = searchQuery.value.toLowerCase().replace('#', '')
   const tag = selectedTag.value.replace('#', '')
@@ -63,6 +99,24 @@ const filteredPlaces = computed(() => {
     return matchesQuery && matchesTag
   })
 })
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredPlaces.value.length / ITEMS_PER_PAGE)))
+
+const paginatedPlaces = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  return filteredPlaces.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+// --- 페이지 조작 함수 ---
+const movePage = (page: number) => {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
+}
+
+// 검색 시 페이지 초기화
+function searchPlaces() {
+  console.log(searchQuery.value)
+  currentPage.value = 1
+}
 
 async function fetchPlace() {
   try {

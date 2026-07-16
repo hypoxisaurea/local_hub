@@ -36,11 +36,37 @@
               </div>
             </article>
           </div>
-
           <div v-else class="empty-state">
             <p>{{ t('common.noResults') }}</p>
           </div>
         </section>
+          <div v-if="items.length > 0" class="pagination-container">
+            <button
+              class="page-nav-btn"
+              :disabled="currentPage === 1"
+              @click="emit('page-change', currentPage - 1)"
+            >
+              {{ t('common.previous') }}
+            </button>
+
+            <button
+              v-for="page in pageNumbers"
+              :key="page"
+              class="page-number-btn"
+              :class="{ 'active': currentPage === page }"
+              @click="emit('page-change', page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              class="page-nav-btn"
+              :disabled="currentPage === totalPages"
+              @click="emit('page-change', currentPage + 1)"
+            >
+              {{ t('common.next') }}
+            </button>
+          </div>
       </div>
     </div>
   </section>
@@ -59,6 +85,9 @@ defineProps<{
   selectedTag: string
   items: LocalPlace[]
   aiDescription?: string
+  currentPage: number
+  pageNumbers: number[]
+  totalPages: number
 }>()
 
 const emit = defineEmits<{
@@ -66,6 +95,7 @@ const emit = defineEmits<{
   'update:search-query': [value: string]
   'tag-click': [tag: string]
   recommend: []
+  'page-change': [page: number]
 }>()
 
 function updateSearchQuery(event: Event) {
@@ -226,6 +256,61 @@ function updateSearchQuery(event: Event) {
   border: 1px dashed #cdd5df;
   border-radius: 24px;
   color: #78869a;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+/* 이전/다음 버튼 */
+.page-nav-btn {
+  padding: 8px 16px;
+  border: 1px solid #dfe4eb;
+  border-radius: 12px;
+  background: white;
+  color: #69758a;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* 숫자 버튼 */
+.page-number-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #dfe4eb;
+  border-radius: 12px;
+  background: white;
+  color: #69758a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* 활성화된 버튼 */
+.page-number-btn.active {
+  background: #ed3e94;
+  border-color: #ed3e94;
+  color: white;
+}
+
+/* 호버 효과 */
+.page-nav-btn:hover:not(:disabled),
+.page-number-btn:hover:not(.active) {
+  background: #f8fafc;
+  border-color: #cdd5df;
+}
+
+/* 비활성화 상태 */
+.page-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 @media (max-width: 820px) {
