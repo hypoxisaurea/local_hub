@@ -114,11 +114,25 @@
       <div class="space-y-6 lg:col-span-4">
         <!-- Weather Widget -->
         <div class="p-6 bg-white border shadow-sm rounded-2xl border-slate-100">
-          <h4 class="flex items-center mb-3 font-bold text-slate-800">
-            <i class="mr-2 text-yellow-500 fas fa-cloud-sun"></i>
+          <h4 class="flex items-center mb-1 font-bold text-slate-800">
+            <i :class="[getWeatherIcon(weather?.condition), 'mr-2']"></i>
             {{ t("home.weatherTitle") }}
           </h4>
-          <p class="text-sm text-slate-500">{{ t("home.weatherText") }}</p>
+          
+          <div v-if="weather" class="mt-3 space-y-2 transition-all duration-300">
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold tracking-tight text-slate-900">
+                {{ weather.temp }}°C
+              </span>
+              <span class="text-sm font-medium text-slate-500">
+                {{ weather.condition }}
+              </span>
+            </div>
+          </div>
+
+          <div v-else class="py-4 mt-2 text-sm animate-pulse text-slate-400">
+            {{ t("home.weatherText") }}...
+          </div>
         </div>
 
         <!-- Chatbot Card -->
@@ -167,9 +181,56 @@ import {
   nextTick,
   onBeforeUnmount,
   onMounted,
+  onUnmounted,
   ref,
   watch,
 } from "vue";
+
+// ---------------------------------------------------
+// 날씨 부분 스크립트 추가
+const weather = ref(null)
+const isConnected = ref(false)
+let eventSource: EventSource | null = null
+
+const getWeatherIcon = (condition) => {
+  if (!condition) return 'fas fa-spinner fa-spin text-slate-400' // 로딩 중 일때
+  
+  const cond = condition.toLowerCase()
+  if (cond.includes('sun') || cond.includes('clear')) return 'fas fa-sun text-yellow-500'
+  if (cond.includes('cloud')) return 'fas fa-cloud text-slate-400'
+  if (cond.includes('rain')) return 'fas fa-cloud-showers-heavy text-blue-400'
+  if (cond.includes('snow')) return 'fas fa-snowflake text-sky-300'
+  
+  return 'fas fa-cloud-sun text-yellow-500' // 기본값
+}
+
+onMounted(() => {
+  eventSource = new EventSource("http://localhost:8000/stream-weather") // 수정 필요(추후 render 로 배포 후)
+
+  eventSource.onopen = () => {
+    isConnected.value = true
+    console.log("SSE connected.")
+  }
+
+  eventSource.addEventListener("weather_update", (event) => {
+    try {
+      const data = JSON.parse(event.data)
+      weather.value = data
+    } catch (error) {
+      console.error("데이터 파싱 에러:", error)
+    }
+  })
+
+  eventSource.onerror = (err) => {
+    console.error("SSE connection error:", err)
+    isConnected.value = false
+  }
+})
+
+onUnmounted(() => {
+  eventSource?.close()
+})
+// ----------------------------------------------------
 import { useI18n } from "vue-i18n";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
