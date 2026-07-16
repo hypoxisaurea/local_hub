@@ -19,11 +19,7 @@
 
       <div class="footer-section">
         <h4>{{ t('footer.follow') }}</h4>
-        <div class="social-links">
-          <a href="#" class="social-icon">Facebook</a>
-          <a href="#" class="social-icon">Twitter</a>
-          <a href="#" class="social-icon">Instagram</a>
-        </div>
+        <SocialShare />
       </div>
     </div>
 
@@ -34,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import SocialShare from '@/components/SocialShare.vue'
 
 const { t } = useI18n()
 </script>
@@ -87,29 +83,6 @@ const { t } = useI18n()
 }
 
 .footer-section a:hover {
-  color: var(--color-pink-600);
-}
-
-.social-links {
-  display: flex;
-  gap: 15px;
-}
-
-.social-icon {
-  display: inline-block;
-  width: 35px;
-  height: 35px;
-  background-color: #555;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 12px;
-  transition: background-color 0.3s;
-}
-
-.social-icon:hover {
   color: var(--color-pink-600);
 }
 

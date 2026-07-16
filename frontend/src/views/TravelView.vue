@@ -10,6 +10,7 @@
     :items="paginatedPlaces"
     :current-page="currentPage"
     :page-numbers="pageNumbers"
+    :total-pages="totalPages"
     @page-change="movePage"
     @update:search-query="searchQuery = $event"
     @search="searchPlaces"

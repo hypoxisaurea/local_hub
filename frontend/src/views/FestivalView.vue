@@ -7,6 +7,8 @@
     :items="paginatedPlaces"
     :current-page="currentPage"
     :page-numbers="pageNumbers"
+    :total-pages="totalPages"
+    @page-change="movePage"
     @update:search-query="searchQuery = $event"
     @search="searchFestivals"
     @tag-click="toggleTag"
@@ -24,6 +26,8 @@ const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
 const festivalItems = ref<LocalPlace[]>([])
+const DISPLAY_PAGE_COUNT = 10
+const ITEMS_PER_PAGE = 10
 
 interface TravelSpotResponse {
   contentid: string
@@ -70,7 +74,46 @@ const filteredFestivals = computed(() => {
   })
 })
 
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredFestivals.value.length / ITEMS_PER_PAGE)))
+
+const paginatedPlaces = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+
+  return filteredFestivals.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+const currentPage = ref(1)
+
+const pageNumbers = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+
+  if (total <= DISPLAY_PAGE_COUNT) {
+    return Array.from({ length: total }, (_, index) => index + 1)
+  }
+
+  let startPage = current - Math.floor(DISPLAY_PAGE_COUNT / 2)
+  let endPage = current + Math.floor(DISPLAY_PAGE_COUNT / 2) - 1
+
+  if (startPage < 1) {
+    startPage = 1
+    endPage = DISPLAY_PAGE_COUNT
+  }
+
+  if (endPage > total) {
+    endPage = total
+    startPage = total - DISPLAY_PAGE_COUNT + 1
+  }
+
+  return Array.from({ length: DISPLAY_PAGE_COUNT }, (_, index) => startPage + index)
+})
+
+const movePage = (page: number) => {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value)
+}
+
 function searchFestivals() {
+  currentPage.value = 1
   fetchFestivals()
 }
 
@@ -81,11 +124,13 @@ function toggleTag(tag: string) {
 function searchKeyword(keyword: string) {
   searchQuery.value = keyword
   selectedTag.value = ''
+  currentPage.value = 1
   fetchFestivals()
 }
 
 watch(locale, () => {
   selectedTag.value = ''
+  currentPage.value = 1
   fetchFestivals()
 })
 

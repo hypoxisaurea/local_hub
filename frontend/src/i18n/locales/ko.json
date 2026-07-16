@@ -114,6 +114,15 @@
     "privacy": "개인정보처리방침",
     "follow": "팔로우"
   },
+  "share": {
+    "label": "현재 페이지 공유",
+    "native": "공유하기",
+    "facebook": "Facebook 공유",
+    "x": "X 공유",
+    "kakao": "카카오스토리 공유",
+    "copy": "링크 복사",
+    "copied": "복사됨"
+  },
   "toast": {
     "switchedKo": "한국어로 변경되었습니다.",
     "switchedEn": "Switched to English.",
