@@ -4,7 +4,6 @@
     :placeholder="t('list.restaurantPlaceholder')"
     :search-query="searchQuery"
     :selected-tag="selectedTag"
-    :recommended-tags="recommendedTags"
     :items="filteredRestaurants"
     @update:search-query="searchQuery = $event"
     @search="searchRestaurants"
@@ -23,12 +22,6 @@ const { locale, t } = useI18n()
 const searchQuery = ref('')
 const selectedTag = ref('')
 const restaurantItems = ref<LocalPlace[]>([])
-
-const recommendedTags = computed(() =>
-  locale.value === 'ko'
-    ? ['#한식', '#카페', '#혼밥', '#데이트']
-    : ['#KoreanFood', '#Cafe', '#SoloDining', '#Date']
-)
 
 interface RestaurantResponse {
   id: number
