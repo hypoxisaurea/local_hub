@@ -48,7 +48,6 @@
               </div>
             </article>
           </div>
-
           <div v-else class="empty-state">
             <p>{{ t('common.noResults') }}</p>
           </div>

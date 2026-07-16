@@ -425,6 +425,7 @@ const writeLabel = computed(() => t('community.write'))
 const emptyLabel = computed(() => t('community.empty'))
 const emptyHint = computed(() => t('community.emptyHint'))
 const passwordAction = ref<'edit' | 'delete'>('edit')
+const PAGE_GROUP_SIZE = 10
 
 // 검색 실행
 const runSearch = () => {
@@ -608,6 +609,13 @@ const paginatedPosts = computed(() => {
 })
 
 const pageNumbers = computed(() => {
+  const startPage =
+    Math.floor((currentPage.value - 1) / PAGE_GROUP_SIZE) * PAGE_GROUP_SIZE + 1
+
+  const endPage = Math.min(
+    startPage + PAGE_GROUP_SIZE - 1,
+    totalPages.value
+  )
   return Array.from({ length: totalPages.value }, (_, index) => index + 1)
 })
 
