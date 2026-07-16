@@ -409,7 +409,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePortalStore } from '@/stores/portalStore'
 import { useUIStore } from '@/stores/uiStore'
@@ -541,6 +541,11 @@ const submitPostForm = async () => {
 }
 
 const selectedPost = ref<Post | null>(null)
+
+watch(locale, (lang) => {
+  portal.fetchPosts(lang === 'en' ? 'en' : 'ko')
+  selectedPost.value = null
+})
 
 // 카테고리 아이콘 반환
 const categories = ['여행지', '맛집', '축제']

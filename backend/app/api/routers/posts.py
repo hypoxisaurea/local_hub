@@ -9,12 +9,20 @@ from ...crud import posts as crud_posts
 router = APIRouter(prefix="/api/posts", tags=["posts"])
 
 @router.get("", response_model=List[schemas.Post])
-def read_posts(q: Optional[str] = Query(None), db: Session = Depends(get_db)):
-    return crud_posts.get_posts(db, q)
+def read_posts(
+    q: Optional[str] = Query(None),
+    lang: str = Query("ko", pattern="^(ko|en)$", description="Content display language"),
+    db: Session = Depends(get_db),
+):
+    return crud_posts.get_posts(db, q, lang=lang)
 
 @router.get("/{post_id}", response_model=schemas.Post)
-def read_post(post_id: int, db: Session = Depends(get_db)):
-    post = crud_posts.get_post(db, post_id)
+def read_post(
+    post_id: int,
+    lang: str = Query("ko", pattern="^(ko|en)$", description="Content display language"),
+    db: Session = Depends(get_db),
+):
+    post = crud_posts.get_post(db, post_id, lang=lang)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post

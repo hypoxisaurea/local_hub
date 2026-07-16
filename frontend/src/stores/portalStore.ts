@@ -28,6 +28,12 @@ export interface PostInput {
 }
 
 const API_BASE = '/api'
+type Locale = 'ko' | 'en'
+
+const getStoredLocale = (): Locale => {
+  if (typeof window === 'undefined') return 'ko'
+  return localStorage.getItem('localhub-locale') === 'en' ? 'en' : 'ko'
+}
 
 const normalizePost = (raw: any): Post => {
   const rawCategory = typeof raw.category === 'string'
@@ -93,9 +99,10 @@ export const usePortalStore = defineStore('portal', () => {
     localStorage.setItem('localhub_posts', JSON.stringify(posts.value))
   }
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (lang: Locale = getStoredLocale()) => {
     try {
-      const res = await fetch(`${API_BASE}/posts`)
+      const params = new URLSearchParams({ lang })
+      const res = await fetch(`${API_BASE}/posts?${params.toString()}`)
       if (!res.ok) throw new Error('fetch failed')
       const payload = await res.json()
       posts.value = Array.isArray(payload) ? payload.map(normalizePost) : []

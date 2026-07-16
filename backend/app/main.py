@@ -14,6 +14,7 @@ from .services.tour_translation_loader import load_tour_item_translations
 from .services.restaurant_loader import load_restaurant_en_items, load_restaurant_items
 
 from .api.routers import posts, restaurants, travel_spots, map
+from .crud.posts import ensure_missing_post_en
 
 app = FastAPI(title="LocalHub API", version="0.1.0")
 
@@ -42,6 +43,7 @@ def on_startup():
         load_tour_item_translations(conn)
         load_restaurant_items(conn)
         load_restaurant_en_items(conn)
+        ensure_missing_post_en(conn)
 
 # app.include_router(health.router)
 app.include_router(posts.router)

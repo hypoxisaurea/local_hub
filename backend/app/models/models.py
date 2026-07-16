@@ -12,6 +12,7 @@ class Category(Base):
     name = Column(String(120), nullable=False, unique=True, index=True)
 
     posts = relationship("Post", back_populates="category", cascade="all, delete-orphan")
+    posts_en = relationship("PostEn", back_populates="category", cascade="all, delete-orphan")
 
 # 테이블 설계하고 생성한 포스트(게시글)
 class Post(Base):
@@ -28,6 +29,20 @@ class Post(Base):
 
     category = relationship("Category", back_populates="posts")
     comments = relationship("Comment", back_populates="post", cascade="all, delete-orphan")
+
+
+class PostEn(Base):
+    __tablename__ = "posts_en"
+
+    pk_post_id = Column(Integer, ForeignKey("posts.pk_post_id"), primary_key=True, index=True)
+    fk_category_id = Column(Integer, ForeignKey("categories.pk_category_id"), nullable=False, index=True)
+    title = Column(String(200), nullable=False, index=True)
+    content = Column(Text, nullable=True)
+    likes = Column(Integer, nullable=False, server_default="0")
+    password = Column(Integer, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    category = relationship("Category", back_populates="posts_en")
 
 # 테이블 설계하고 생성한 포스트(댓글)
 class Comment(Base):
