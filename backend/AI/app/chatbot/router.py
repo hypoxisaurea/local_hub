@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from app.chatbot.graph.builder import chatbot_graph
-from app.chatbot.schemas import ChatRequest, ChatResponse
+from .graph.builder import chatbot_graph
+from .schemas import ChatRequest, ChatResponse
 
 router = APIRouter(tags=["chatbot"])
 

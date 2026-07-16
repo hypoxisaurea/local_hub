@@ -52,3 +52,5 @@ Invoke-NativeCommand $pythonExe -m pip install -r $requirementsPath
 
 Write-Host "Virtual environment ready at $venvPath"
 Write-Host "Activate with: .\.venv\Scripts\Activate.ps1"
+Write-Host "Run backend and AI API with: npm run dev:backend"
+Write-Host "Run frontend with: npm run dev:frontend"

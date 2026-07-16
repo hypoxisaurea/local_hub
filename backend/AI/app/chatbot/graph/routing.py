@@ -1,5 +1,5 @@
-from app.chatbot.graph.state import RouteName
-from app.chatbot.services.local_search import detect_categories, has_local_intent
+from ..services.local_search import detect_categories, has_local_intent
+from .state import RouteName
 
 GENERAL_HINTS = {"왜", "방법", "어떻게", "팁", "추천 이유", "일반", "계획", "일정 짜", "동선"}
 COMMUNITY_HINTS = {"게시글", "커뮤니티", "후기", "리뷰", "글 검색", "작성글"}

@@ -27,7 +27,7 @@ export interface PostInput {
   password: string | number
 }
 
-const API_BASE = (import.meta as any).env.VITE_API_BASE || 'http://localhost:8000/api'
+const API_BASE = '/api'
 
 const normalizePost = (raw: any): Post => {
   const rawCategory = typeof raw.category === 'string'

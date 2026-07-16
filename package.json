@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "dev:backend": "python -m uvicorn backend.app.main:app --reload",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
+  },
   "dependencies": {
     "vue-i18n": "^11.4.6"
   }

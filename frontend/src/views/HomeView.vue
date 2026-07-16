@@ -210,7 +210,7 @@ const getWeatherIcon = (condition?: string | null) => {
 }
 
 onMounted(() => {
-  eventSource = new EventSource("http://localhost:8000/stream-weather") // 수정 필요(추후 render 로 배포 후)
+  eventSource = new EventSource("/stream-weather")
 
   eventSource.onopen = () => {
     isConnected.value = true
